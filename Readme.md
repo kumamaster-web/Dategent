@@ -76,7 +76,3 @@ If you have questions about the LICENSE or Contributor License Agreement, contac
 **Do not contribute if you do not agree to these terms.**
 
 ---
-
-## Getting Started
-
-[Your regular README content continues here...]
