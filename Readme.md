@@ -12,7 +12,7 @@ This project is **proprietary and confidential**. All rights are reserved by Edw
 - Use this software without permission
 - Copy, fork, or redistribute the code
 - Create derivative works
-- Use any part of this project in your own projects
+- Use any part of this project in your own commercial projects
 
 ### For Contributors
 
