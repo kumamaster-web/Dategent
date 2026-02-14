@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_14_035036) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_14_070000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -42,11 +42,65 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_14_035036) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "agents", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.text "personality_summary"
+    t.text "system_prompt"
+    t.string "status", default: "active"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "match_cap_per_week", default: 5
+    t.index ["user_id"], name: "index_agents_on_user_id"
+  end
+
+  create_table "blocks", force: :cascade do |t|
+    t.bigint "blocker_user_id", null: false
+    t.bigint "blocked_user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["blocked_user_id"], name: "index_blocks_on_blocked_user_id"
+    t.index ["blocker_user_id", "blocked_user_id"], name: "index_blocks_on_blocker_user_id_and_blocked_user_id", unique: true
+    t.index ["blocker_user_id"], name: "index_blocks_on_blocker_user_id"
+  end
+
   create_table "chats", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "model_id"
     t.index ["model_id"], name: "index_chats_on_model_id"
+  end
+
+  create_table "date_events", force: :cascade do |t|
+    t.bigint "match_id", null: false
+    t.bigint "venue_id"
+    t.datetime "scheduled_time"
+    t.string "booking_status"
+    t.integer "rating_score"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id"], name: "index_date_events_on_match_id"
+    t.index ["venue_id"], name: "index_date_events_on_venue_id"
+  end
+
+  create_table "matches", force: :cascade do |t|
+    t.bigint "initiator_agent_id", null: false
+    t.bigint "receiver_agent_id", null: false
+    t.decimal "compatibility_score"
+    t.string "status"
+    t.text "chat_transcript"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["initiator_agent_id"], name: "index_matches_on_initiator_agent_id"
+    t.index ["receiver_agent_id"], name: "index_matches_on_receiver_agent_id"
+  end
+
+  create_table "meetings", force: :cascade do |t|
+    t.bigint "date_event_id", null: false
+    t.bigint "venue_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date_event_id"], name: "index_meetings_on_date_event_id"
+    t.index ["venue_id"], name: "index_meetings_on_venue_id"
   end
 
   create_table "messages", force: :cascade do |t|
@@ -106,6 +160,26 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_14_035036) do
     t.index ["tool_call_id"], name: "index_tool_calls_on_tool_call_id", unique: true
   end
 
+  create_table "user_preferences", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "preferred_gender"
+    t.integer "min_age"
+    t.integer "max_age"
+    t.integer "max_distance"
+    t.string "preferred_education"
+    t.string "preferred_zodiac_sign"
+    t.string "preferred_mbti"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "budget_level"
+    t.string "relationship_goal"
+    t.string "alcohol"
+    t.string "smoking"
+    t.string "fitness"
+    t.text "extras_json"
+    t.index ["user_id"], name: "index_user_preferences_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -114,15 +188,51 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_14_035036) do
     t.datetime "remember_created_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_verified"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "city"
+    t.string "country"
+    t.string "pronouns"
+    t.integer "height"
+    t.date "date_of_birth"
+    t.string "language"
+    t.string "zodiac_sign"
+    t.string "education"
+    t.string "occupation"
+    t.string "mbti"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "venues", force: :cascade do |t|
+    t.string "name"
+    t.string "address"
+    t.string "city"
+    t.string "venue_type"
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
+    t.decimal "rating", precision: 3, scale: 1
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "price_tier"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "agents", "users"
+  add_foreign_key "blocks", "users", column: "blocked_user_id"
+  add_foreign_key "blocks", "users", column: "blocker_user_id"
   add_foreign_key "chats", "models"
+  add_foreign_key "date_events", "matches"
+  add_foreign_key "date_events", "venues"
+  add_foreign_key "matches", "agents", column: "initiator_agent_id"
+  add_foreign_key "matches", "agents", column: "receiver_agent_id"
+  add_foreign_key "meetings", "date_events"
+  add_foreign_key "meetings", "venues"
   add_foreign_key "messages", "chats"
   add_foreign_key "messages", "models"
   add_foreign_key "messages", "tool_calls"
   add_foreign_key "tool_calls", "messages"
+  add_foreign_key "user_preferences", "users"
 end
