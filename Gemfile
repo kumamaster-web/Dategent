@@ -72,3 +72,4 @@ end
 gem "cloudinary"
 
 gem 'simple_form'
+gem "ruby_llm", "~> 1.11"
