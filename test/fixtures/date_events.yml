@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  match: one
+  venue: one
+  scheduled_time: 2026-02-14 15:08:59
+  booking_status: MyString
+  rating_score: 1
+
+two:
+  match: two
+  venue: two
+  scheduled_time: 2026-02-14 15:08:59
+  booking_status: MyString
+  rating_score: 1
