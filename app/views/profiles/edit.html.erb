@@ -1,0 +1,86 @@
+<h1>Edit Profile</h1>
+
+<%= form_with(model: @user, url: profile_path, method: :patch) do |f| %>
+  <% if @user.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@user.errors.count, "error") %> prevented your profile from being saved:</h2>
+      <ul>
+        <% @user.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <p><%= f.label :first_name %></p>
+    <p><%= f.text_field :first_name %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :last_name %></p>
+    <p><%= f.text_field :last_name %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :bio %></p>
+    <p><%= f.text_area :bio, maxlength: 500, rows: 4 %></p>
+    <p><small><span id="bio-counter">0</span>/500 characters</small></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :date_of_birth %></p>
+    <p><%= f.date_field :date_of_birth %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :city %></p>
+    <p><%= f.text_field :city %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :country %></p>
+    <p><%= f.text_field :country %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :pronouns %></p>
+    <p><%= f.select :pronouns, ["he/him", "she/her", "they/them", "other"], include_blank: "Select pronouns" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :height, "Height (cm)" %></p>
+    <p><%= f.number_field :height %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :language %></p>
+    <p><%= f.text_field :language %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :zodiac_sign %></p>
+    <p><%= f.select :zodiac_sign, %w[Aries Taurus Gemini Cancer Leo Virgo Libra Scorpio Sagittarius Capricorn Aquarius Pisces], include_blank: "Select sign" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :education %></p>
+    <p><%= f.text_field :education %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :occupation %></p>
+    <p><%= f.text_field :occupation %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :mbti %></p>
+    <p><%= f.select :mbti, %w[INTJ INTP ENTJ ENTP INFJ INFP ENFJ ENFP ISTJ ISFJ ESTJ ESFJ ISTP ISFP ESTP ESFP], include_blank: "Select MBTI" %></p>
+  </div>
+
+  <div class="actions">
+    <%= f.submit "Save Profile" %>
+  </div>
+<% end %>
+
+<p><%= link_to "Back to Profile", profile_path %></p>

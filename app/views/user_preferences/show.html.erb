@@ -1,0 +1,16 @@
+<h1>My Preferences</h1>
+
+<p><strong>Preferred Gender:</strong> <%= @user_preference.preferred_gender || "Not set" %></p>
+<p><strong>Age Range:</strong> <%= @user_preference.min_age || "Any" %> – <%= @user_preference.max_age || "Any" %></p>
+<p><strong>Max Distance:</strong> <%= @user_preference.max_distance ? "#{@user_preference.max_distance} km" : "Not set" %></p>
+<p><strong>Budget Level:</strong> <%= @user_preference.budget_level || "Not set" %></p>
+<p><strong>Relationship Goal:</strong> <%= @user_preference.relationship_goal&.titleize || "Not set" %></p>
+<p><strong>Preferred Education:</strong> <%= @user_preference.preferred_education || "Not set" %></p>
+<p><strong>Preferred Zodiac Sign:</strong> <%= @user_preference.preferred_zodiac_sign || "Not set" %></p>
+<p><strong>Preferred MBTI:</strong> <%= @user_preference.preferred_mbti || "Not set" %></p>
+<p><strong>Alcohol:</strong> <%= @user_preference.alcohol&.titleize || "Not set" %></p>
+<p><strong>Smoking:</strong> <%= @user_preference.smoking&.titleize || "Not set" %></p>
+<p><strong>Fitness:</strong> <%= @user_preference.fitness&.titleize || "Not set" %></p>
+
+<p><%= link_to "Edit Preferences", edit_user_preference_path %></p>
+<p><%= link_to "Back to Profile", profile_path %></p>
