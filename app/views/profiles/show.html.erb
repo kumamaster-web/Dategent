@@ -1,0 +1,19 @@
+<h1>My Profile</h1>
+
+<p><strong>Name:</strong> <%= @user.full_name %></p>
+<p><strong>Email:</strong> <%= @user.email %></p>
+<p><strong>Bio:</strong> <%= @user.bio || "Not set" %></p>
+<p><strong>Date of Birth:</strong> <%= @user.date_of_birth&.strftime("%B %d, %Y") || "Not set" %></p>
+<p><strong>Age:</strong> <%= @user.age || "N/A" %></p>
+<p><strong>City:</strong> <%= @user.city || "Not set" %></p>
+<p><strong>Country:</strong> <%= @user.country || "Not set" %></p>
+<p><strong>Pronouns:</strong> <%= @user.pronouns || "Not set" %></p>
+<p><strong>Height:</strong> <%= @user.height ? "#{@user.height} cm" : "Not set" %></p>
+<p><strong>Language:</strong> <%= @user.language || "Not set" %></p>
+<p><strong>Zodiac Sign:</strong> <%= @user.zodiac_sign || "Not set" %></p>
+<p><strong>Education:</strong> <%= @user.education || "Not set" %></p>
+<p><strong>Occupation:</strong> <%= @user.occupation || "Not set" %></p>
+<p><strong>MBTI:</strong> <%= @user.mbti || "Not set" %></p>
+
+<p><%= link_to "Edit Profile", edit_profile_path %></p>
+<p><%= link_to "My Preferences", user_preference_path %></p>

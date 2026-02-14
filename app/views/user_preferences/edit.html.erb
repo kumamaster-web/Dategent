@@ -1,0 +1,80 @@
+<h1>Edit Preferences</h1>
+
+<%= form_with(model: @user_preference, url: user_preference_path, method: :patch) do |f| %>
+  <% if @user_preference.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@user_preference.errors.count, "error") %> prevented your preferences from being saved:</h2>
+      <ul>
+        <% @user_preference.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <p><%= f.label :preferred_gender %></p>
+    <p><%= f.select :preferred_gender, %w[Male Female Non-binary All], include_blank: "No preference" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :min_age %></p>
+    <p><%= f.number_field :min_age, min: 18 %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :max_age %></p>
+    <p><%= f.number_field :max_age, min: 18 %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :max_distance, "Max Distance (km)" %></p>
+    <p><%= f.number_field :max_distance, min: 1 %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :budget_level %></p>
+    <p><%= f.select :budget_level, ["$", "$$", "$$$", "$$$$"], include_blank: "Select budget" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :relationship_goal %></p>
+    <p><%= f.select :relationship_goal, [["Casual", "casual"], ["Serious", "serious"], ["Marriage", "marriage"], ["Friendship", "friendship"], ["Open to All", "open_to_all"]], include_blank: "Select goal" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :preferred_education %></p>
+    <p><%= f.text_field :preferred_education %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :preferred_zodiac_sign %></p>
+    <p><%= f.select :preferred_zodiac_sign, %w[Aries Taurus Gemini Cancer Leo Virgo Libra Scorpio Sagittarius Capricorn Aquarius Pisces], include_blank: "No preference" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :preferred_mbti %></p>
+    <p><%= f.select :preferred_mbti, %w[INTJ INTP ENTJ ENTP INFJ INFP ENFJ ENFP ISTJ ISFJ ESTJ ESFJ ISTP ISFP ESTP ESFP], include_blank: "No preference" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :alcohol %></p>
+    <p><%= f.select :alcohol, [["Never", "never"], ["Sometimes", "sometimes"], ["Often", "often"]], include_blank: "Select" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :smoking %></p>
+    <p><%= f.select :smoking, [["Never", "never"], ["Sometimes", "sometimes"], ["Often", "often"]], include_blank: "Select" %></p>
+  </div>
+
+  <div class="field">
+    <p><%= f.label :fitness %></p>
+    <p><%= f.select :fitness, [["Never", "never"], ["Sometimes", "sometimes"], ["Active", "active"], ["Very Active", "very_active"]], include_blank: "Select" %></p>
+  </div>
+
+  <div class="actions">
+    <%= f.submit "Save Preferences" %>
+  </div>
+<% end %>
+
+<p><%= link_to "Back to Preferences", user_preference_path %></p>
