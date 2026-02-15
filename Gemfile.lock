@@ -100,6 +100,11 @@ GEM
       regexp_parser (>= 1.5, < 3.0)
       xpath (~> 3.2)
     cgi (0.5.1)
+    cloudinary (2.4.4)
+      faraday (>= 2.0.1, < 3.0.0)
+      faraday-follow_redirects (~> 0.5)
+      faraday-multipart (~> 1.0, >= 1.0.4)
+      ostruct
     concurrent-ruby (1.3.6)
     connection_pool (3.0.2)
     crass (1.0.6)
@@ -116,17 +121,16 @@ GEM
     drb (2.2.3)
     erb (6.0.1)
     erubi (1.13.1)
-    event_stream_parser (1.0.0)
     faraday (2.14.1)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
+    faraday-follow_redirects (0.5.0)
+      faraday (>= 1, < 3)
     faraday-multipart (1.2.0)
       multipart-post (~> 2.0)
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
-    faraday-retry (2.4.0)
-      faraday (~> 2.0)
     globalid (1.3.0)
       activesupport (>= 6.1)
     i18n (1.14.8)
@@ -192,6 +196,7 @@ GEM
     nokogiri (1.19.0-x86_64-linux-musl)
       racc (~> 1.4)
     orm_adapter (0.5.0)
+    ostruct (0.6.3)
     pg (1.6.3)
     pg (1.6.3-aarch64-linux)
     pg (1.6.3-aarch64-linux-musl)
@@ -280,6 +285,9 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 4.0)
       websocket (~> 1.0)
+    simple_form (5.4.1)
+      actionpack (>= 7.0)
+      activemodel (>= 7.0)
     sprockets (4.2.2)
       concurrent-ruby (~> 1.0)
       logger
@@ -331,6 +339,7 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   capybara
+  cloudinary
   debug
   devise
   importmap-rails
@@ -340,6 +349,7 @@ DEPENDENCIES
   rails (~> 7.1.6)
   ruby_llm (~> 1.11)
   selenium-webdriver
+  simple_form
   sprockets-rails
   stimulus-rails
   turbo-rails
