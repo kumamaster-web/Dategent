@@ -4,6 +4,8 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  has_one_attached :photo
+
   has_one :user_preference, dependent: :destroy
   has_one :agent, dependent: :destroy
 
@@ -19,9 +21,11 @@ class User < ApplicationRecord
   validates :first_name, presence: true
   validates :last_name, presence: true
   validates :height, numericality: { greater_than: 0 }, allow_nil: true
+  validates :gender, inclusion: { in: %w[male female non_binary other] }, allow_nil: true
   validates :mbti, inclusion: {
     in: %w[INTJ INTP ENTJ ENTP INFJ INFP ENFJ ENFP ISTJ ISFJ ESTJ ESFJ ISTP ISFP ESTP ESFP]
   }, allow_nil: true
+  validates :bio, length: { maximum: 500 }, allow_nil: true
 
   def full_name
     "#{first_name} #{last_name}"

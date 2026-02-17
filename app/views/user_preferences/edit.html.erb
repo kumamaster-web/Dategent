@@ -1,80 +1,198 @@
-<h1>Edit Preferences</h1>
-
-<%= form_with(model: @user_preference, url: user_preference_path, method: :patch) do |f| %>
-  <% if @user_preference.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@user_preference.errors.count, "error") %> prevented your preferences from being saved:</h2>
-      <ul>
-        <% @user_preference.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="field">
-    <p><%= f.label :preferred_gender %></p>
-    <p><%= f.select :preferred_gender, %w[Male Female Non-binary All], include_blank: "No preference" %></p>
+<div class="max-w-2xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Edit Preferences</h1>
+    <%= link_to user_preference_path, class: "text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300" do %>
+      Cancel
+    <% end %>
   </div>
 
-  <div class="field">
-    <p><%= f.label :min_age %></p>
-    <p><%= f.number_field :min_age, min: 18 %></p>
-  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <%= form_with(model: @user_preference, url: user_preference_path, method: :patch) do |f| %>
+      <% if @user_preference.errors.any? %>
+        <div class="mb-6 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-4">
+          <ul class="text-sm text-red-700 dark:text-red-300 list-disc list-inside space-y-1">
+            <% @user_preference.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
 
-  <div class="field">
-    <p><%= f.label :max_age %></p>
-    <p><%= f.number_field :max_age, min: 18 %></p>
-  </div>
+      <div class="space-y-6">
+        <%# Match Filters %>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">Match Filters</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <%= f.label :preferred_gender, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.select :preferred_gender, %w[Male Female Non-binary All], { include_blank: "No preference" }, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :relationship_goal, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.select :relationship_goal, [["Casual", "casual"], ["Serious", "serious"], ["Marriage", "marriage"], ["Friendship", "friendship"], ["Open to All", "open_to_all"]], { include_blank: "Select goal" }, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :min_age, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.number_field :min_age, min: 18, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors", placeholder: "18" %>
+            </div>
+            <div>
+              <%= f.label :max_age, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.number_field :max_age, min: 18, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors", placeholder: "99" %>
+            </div>
+            <div class="col-span-2 sm:col-span-1">
+              <%= f.label :max_distance, "Max Distance (km)", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.number_field :max_distance, min: 1, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors", placeholder: "50" %>
+            </div>
+          </div>
+        </div>
 
-  <div class="field">
-    <p><%= f.label :max_distance, "Max Distance (km)" %></p>
-    <p><%= f.number_field :max_distance, min: 1 %></p>
-  </div>
+        <%# Lifestyle %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">Lifestyle</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <%= f.label :budget_level, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.select :budget_level, ["$", "$$", "$$$", "$$$$"], { include_blank: "Select budget" }, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :alcohol, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.select :alcohol, [["Never", "never"], ["Sometimes", "sometimes"], ["Often", "often"]], { include_blank: "Select" }, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :smoking, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.select :smoking, [["Never", "never"], ["Sometimes", "sometimes"], ["Often", "often"]], { include_blank: "Select" }, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :fitness, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.select :fitness, [["Never", "never"], ["Sometimes", "sometimes"], ["Active", "active"], ["Very Active", "very_active"]], { include_blank: "Select" }, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+          </div>
+        </div>
 
-  <div class="field">
-    <p><%= f.label :budget_level %></p>
-    <p><%= f.select :budget_level, ["$", "$$", "$$$", "$$$$"], include_blank: "Select budget" %></p>
-  </div>
+        <%# Venue Preferences %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">Preferred Venue Types</h3>
+          <div class="flex flex-wrap gap-3">
+            <% UserPreference::VENUE_TYPES.each do |type| %>
+              <label class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border cursor-pointer transition-colors
+                <%= @user_preference.venue_types.include?(type) ? 'bg-indigo-50 border-indigo-300 dark:bg-indigo-900/30 dark:border-indigo-600' : 'bg-white border-gray-300 dark:bg-gray-700 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600' %>">
+                <input type="checkbox" name="user_preference[preferred_venue_types][]" value="<%= type %>"
+                  <%= 'checked' if @user_preference.venue_types.include?(type) %>
+                  class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300"><%= type.titleize %></span>
+              </label>
+            <% end %>
+          </div>
+        </div>
 
-  <div class="field">
-    <p><%= f.label :relationship_goal %></p>
-    <p><%= f.select :relationship_goal, [["Casual", "casual"], ["Serious", "serious"], ["Marriage", "marriage"], ["Friendship", "friendship"], ["Open to All", "open_to_all"]], include_blank: "Select goal" %></p>
-  </div>
+        <%# Personality Preferences %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">Personality Preferences</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <%= f.label :preferred_education, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.text_field :preferred_education, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :preferred_zodiac_sign, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.select :preferred_zodiac_sign, %w[Aries Taurus Gemini Cancer Leo Virgo Libra Scorpio Sagittarius Capricorn Aquarius Pisces], { include_blank: "No preference" }, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :preferred_mbti, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.select :preferred_mbti, %w[INTJ INTP ENTJ ENTP INFJ INFP ENFJ ENFP ISTJ ISFJ ESTJ ESFJ ISTP ISFP ESTP ESFP], { include_blank: "No preference" }, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+          </div>
+        </div>
 
-  <div class="field">
-    <p><%= f.label :preferred_education %></p>
-    <p><%= f.text_field :preferred_education %></p>
-  </div>
+        <%# Weekly Availability Grid %>
+        <%
+          days = %w[monday tuesday wednesday thursday friday saturday sunday]
+          # Generate 30-min slots from 07:00 to 23:00
+          time_slots = (7..22).flat_map { |h| ["#{h.to_s.rjust(2, '0')}:00", "#{h.to_s.rjust(2, '0')}:30"] } + ["23:00"]
+          schedule = @user_preference.schedule
+        %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6" data-controller="availability-grid">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider">Weekly Availability</h3>
+            <button type="button" data-action="click->availability-grid#clearAll"
+                    class="text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 cursor-pointer">
+              Clear All
+            </button>
+          </div>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Click and drag to select time blocks. Tap day/time headers to toggle entire rows or columns.</p>
 
-  <div class="field">
-    <p><%= f.label :preferred_zodiac_sign %></p>
-    <p><%= f.select :preferred_zodiac_sign, %w[Aries Taurus Gemini Cancer Leo Virgo Libra Scorpio Sagittarius Capricorn Aquarius Pisces], include_blank: "No preference" %></p>
-  </div>
+          <%# Timezone selector %>
+          <div class="mb-4">
+            <%= f.label :timezone, "Your Timezone", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+            <%= f.time_zone_select :timezone,
+                ActiveSupport::TimeZone.all,
+                { default: @user_preference.timezone || "UTC" },
+                class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">All times below are in your selected timezone</p>
+          </div>
 
-  <div class="field">
-    <p><%= f.label :preferred_mbti %></p>
-    <p><%= f.select :preferred_mbti, %w[INTJ INTP ENTJ ENTP INFJ INFP ENFJ ENFP ISTJ ISFJ ESTJ ESFJ ISTP ISFP ESTP ESFP], include_blank: "No preference" %></p>
-  </div>
+          <input type="hidden" name="user_preference[schedule_availability]"
+                 value="<%= schedule.to_json %>"
+                 data-availability-grid-target="hiddenInput">
 
-  <div class="field">
-    <p><%= f.label :alcohol %></p>
-    <p><%= f.select :alcohol, [["Never", "never"], ["Sometimes", "sometimes"], ["Often", "often"]], include_blank: "Select" %></p>
-  </div>
+          <div class="overflow-x-auto -mx-2 px-2 pb-2 max-h-[28rem] overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+            <table class="w-full border-collapse" style="min-width: 26rem;">
+              <%# Sticky header with day labels %>
+              <thead class="sticky top-0 z-10 bg-white dark:bg-gray-800">
+                <tr>
+                  <th class="w-14 bg-white dark:bg-gray-800"></th>
+                  <% days.each do |day| %>
+                    <th class="px-0.5 pb-1.5 pt-2 text-center bg-white dark:bg-gray-800">
+                      <button type="button" data-action="click->availability-grid#toggleDay" data-day="<%= day %>"
+                              class="text-[0.65rem] font-bold text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer uppercase tracking-wider leading-tight">
+                        <%= day[0..2].upcase %>
+                      </button>
+                    </th>
+                  <% end %>
+                </tr>
+              </thead>
+              <tbody>
+                <% time_slots.each_with_index do |slot, idx| %>
+                  <% is_hour = slot.end_with?(":00") %>
+                  <tr class="<%= is_hour ? 'border-t border-gray-200 dark:border-gray-700' : '' %>">
+                    <%# Time label - show on the hour, empty for :30 %>
+                    <td class="pr-1 py-0 text-right align-top bg-white dark:bg-gray-800 sticky left-0 z-[5]">
+                      <% if is_hour %>
+                        <button type="button" data-action="click->availability-grid#toggleSlot" data-slot="<%= slot %>"
+                                class="text-[0.6rem] font-medium text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer leading-none whitespace-nowrap">
+                          <%= slot %>
+                        </button>
+                      <% end %>
+                    </td>
+                    <% days.each do |day| %>
+                      <td class="px-0.5 py-0.5">
+                        <% is_active = schedule.dig(day)&.include?(slot) %>
+                        <div data-availability-grid-target="cell"
+                             data-action="mousedown->availability-grid#startDrag mouseenter->availability-grid#enterCell touchstart->availability-grid#touchStart touchmove->availability-grid#touchMove"
+                             data-day="<%= day %>" data-slot="<%= slot %>"
+                             class="h-6 sm:h-7 min-w-[2.25rem] rounded-sm cursor-pointer transition-colors
+                               <%= is_active ? 'bg-indigo-500 dark:bg-indigo-500 ring-1 ring-indigo-600/50 dark:ring-indigo-400/50' : 'bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-600 ring-1 ring-gray-200 dark:ring-gray-600' %>">
+                        </div>
+                      </td>
+                    <% end %>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
 
-  <div class="field">
-    <p><%= f.label :smoking %></p>
-    <p><%= f.select :smoking, [["Never", "never"], ["Sometimes", "sometimes"], ["Often", "often"]], include_blank: "Select" %></p>
-  </div>
+          <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-indigo-500 inline-block"></span> Available</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-gray-50 dark:bg-gray-700/50 ring-1 ring-gray-200 dark:ring-gray-600 inline-block"></span> Not set</span>
+            <span class="text-gray-400 dark:text-gray-500">• Drag to select multiple slots</span>
+          </div>
+        </div>
 
-  <div class="field">
-    <p><%= f.label :fitness %></p>
-    <p><%= f.select :fitness, [["Never", "never"], ["Sometimes", "sometimes"], ["Active", "active"], ["Very Active", "very_active"]], include_blank: "Select" %></p>
+        <%# Submit %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <%= f.submit "Save Preferences", class: "w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-6 rounded-lg transition-colors focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer" %>
+        </div>
+      </div>
+    <% end %>
   </div>
-
-  <div class="actions">
-    <%= f.submit "Save Preferences" %>
-  </div>
-<% end %>
-
-<p><%= link_to "Back to Preferences", user_preference_path %></p>
+</div>

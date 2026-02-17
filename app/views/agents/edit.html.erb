@@ -1,0 +1,116 @@
+<div class="max-w-2xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Configure Agent</h1>
+    <%= link_to agent_path, class: "text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300" do %>
+      Cancel
+    <% end %>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <%= form_with(model: @agent, url: agent_path, method: :patch) do |f| %>
+      <% if @agent.errors.any? %>
+        <div class="mb-6 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-4">
+          <ul class="text-sm text-red-700 dark:text-red-300 list-disc list-inside space-y-1">
+            <% @agent.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="space-y-6">
+        <%# Agent Name %>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">Identity</h3>
+          <div>
+            <%= f.label :name, "Agent Name", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+            <%= f.text_field :name, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors", placeholder: "e.g. Agent Nova" %>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">This name appears in notifications and the UI</p>
+          </div>
+        </div>
+
+        <%# Personality Mode %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">Personality</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" data-controller="radio-select">
+            <% %w[friendly professional witty caring direct].each do |mode| %>
+              <div data-radio-select-target="card"
+                   data-action="click->radio-select#select"
+                   class="relative flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-all
+                     <%= @agent.personality_mode == mode ? 'bg-indigo-50 border-indigo-300 ring-2 ring-indigo-500 dark:bg-indigo-900/30 dark:border-indigo-600' : 'bg-white border-gray-200 hover:border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:hover:border-gray-500' %>">
+                <%= f.radio_button :personality_mode, mode, class: "sr-only", data: { radio_select_target: "radio" } %>
+                <div data-role="icon" class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0
+                  <%= @agent.personality_mode == mode ? 'bg-indigo-100 dark:bg-indigo-800' : 'bg-gray-100 dark:bg-gray-600' %>">
+                  <%= case mode
+                      when "friendly" then "😊"
+                      when "professional" then "💼"
+                      when "witty" then "😄"
+                      when "caring" then "🤗"
+                      when "direct" then "🎯"
+                      end %>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900 dark:text-gray-100"><%= mode.titleize %></p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    <%= case mode
+                        when "friendly" then "Warm and approachable conversations"
+                        when "professional" then "Polished and efficient communication"
+                        when "witty" then "Playful with clever humor"
+                        when "caring" then "Empathetic and thoughtful approach"
+                        when "direct" then "Straightforward and to the point"
+                        end %>
+                  </p>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# Aggressiveness / Match Cap %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">Dating Pace</h3>
+          <div>
+            <%= f.label :match_cap_per_week, "Matches per week", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+            <div class="flex items-center gap-4" data-controller="range-slider">
+              <%= f.range_field :match_cap_per_week, min: 1, max: 10, step: 1,
+                  data: { range_slider_target: "input", action: "input->range-slider#update" },
+                  class: "w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" %>
+              <span class="text-sm font-bold text-indigo-600 dark:text-indigo-400 min-w-[2rem] text-center" data-range-slider-target="value"><%= @agent.match_cap_per_week %></span>
+            </div>
+            <div class="flex justify-between mt-2">
+              <span class="text-xs text-gray-500 dark:text-gray-400">Conservative (1-2)</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400">Moderate (3-5)</span>
+              <span class="text-xs text-gray-500 dark:text-gray-400">Active (6+)</span>
+            </div>
+          </div>
+        </div>
+
+        <%# Autopilot %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">Automation</h3>
+          <label class="flex items-center justify-between cursor-pointer">
+            <div>
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Autopilot Mode</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Let your agent automatically accept compatible dates</p>
+            </div>
+            <%= f.check_box :autopilot, class: "h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+          </label>
+        </div>
+
+        <%# Agent Notes %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">Agent Notes</h3>
+          <%= f.label :personality_summary, "Additional instructions for your agent", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+          <%= f.text_area :personality_summary, rows: 3,
+              class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none",
+              placeholder: "e.g. I prefer dates at quiet venues, I'm a vegetarian, I love outdoor activities..." %>
+        </div>
+
+        <%# Submit %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <%= f.submit "Save Settings", class: "w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-6 rounded-lg transition-colors focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

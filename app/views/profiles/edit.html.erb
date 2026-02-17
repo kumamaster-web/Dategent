@@ -1,86 +1,136 @@
-<h1>Edit Profile</h1>
-
-<%= form_with(model: @user, url: profile_path, method: :patch) do |f| %>
-  <% if @user.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@user.errors.count, "error") %> prevented your profile from being saved:</h2>
-      <ul>
-        <% @user.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="field">
-    <p><%= f.label :first_name %></p>
-    <p><%= f.text_field :first_name %></p>
+<div class="max-w-2xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Edit Profile</h1>
+    <%= link_to profile_path, class: "text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300" do %>
+      Cancel
+    <% end %>
   </div>
 
-  <div class="field">
-    <p><%= f.label :last_name %></p>
-    <p><%= f.text_field :last_name %></p>
-  </div>
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <%= form_with(model: @user, url: profile_path, method: :patch) do |f| %>
+      <% if @user.errors.any? %>
+        <div class="mb-6 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-4">
+          <ul class="text-sm text-red-700 dark:text-red-300 list-disc list-inside space-y-1">
+            <% @user.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
 
-  <div class="field">
-    <p><%= f.label :bio %></p>
-    <p><%= f.text_area :bio, maxlength: 500, rows: 4 %></p>
-    <p><small><span id="bio-counter">0</span>/500 characters</small></p>
-  </div>
+      <div class="space-y-6">
+        <%# Photo Upload %>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Profile Photo</label>
+          <div class="flex items-center gap-4">
+            <div class="w-20 h-20 rounded-xl bg-gray-200 dark:bg-gray-700 overflow-hidden flex-shrink-0">
+              <% if @user.photo.attached? && @user.photo.blob&.persisted? %>
+                <%= image_tag @user.photo, class: "w-full h-full object-cover" %>
+              <% else %>
+                <div class="w-full h-full flex items-center justify-center text-gray-400">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </div>
+              <% end %>
+            </div>
+            <%= f.file_field :photo, accept: "image/*",
+                class: "text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900/50 dark:file:text-indigo-300 hover:file:bg-indigo-100 cursor-pointer" %>
+          </div>
+        </div>
 
-  <div class="field">
-    <p><%= f.label :date_of_birth %></p>
-    <p><%= f.date_field :date_of_birth %></p>
-  </div>
+        <%# Name %>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <%= f.label :first_name, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+            <%= f.text_field :first_name, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+          </div>
+          <div>
+            <%= f.label :last_name, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+            <%= f.text_field :last_name, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+          </div>
+        </div>
 
-  <div class="field">
-    <p><%= f.label :city %></p>
-    <p><%= f.text_field :city %></p>
-  </div>
+        <%# Bio %>
+        <div data-controller="character-counter">
+          <%= f.label :bio, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+          <%= f.text_area :bio, maxlength: 500, rows: 4,
+              data: { character_counter_target: "input", action: "input->character-counter#count" },
+              class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none",
+              placeholder: "Tell potential matches about yourself..." %>
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <span data-character-counter-target="count"><%= @user.bio&.length || 0 %></span>/500 characters
+          </p>
+        </div>
 
-  <div class="field">
-    <p><%= f.label :country %></p>
-    <p><%= f.text_field :country %></p>
-  </div>
+        <%# Personal Details %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">Personal Details</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <%= f.label :date_of_birth, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.date_field :date_of_birth, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :gender, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.select :gender, [["Male", "male"], ["Female", "female"], ["Non-binary", "non_binary"], ["Other", "other"]], { include_blank: "Select gender" }, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :pronouns, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.select :pronouns, ["he/him", "she/her", "they/them", "other"], { include_blank: "Select pronouns" }, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :height, "Height (cm)", class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.number_field :height, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+          </div>
+        </div>
 
-  <div class="field">
-    <p><%= f.label :pronouns %></p>
-    <p><%= f.select :pronouns, ["he/him", "she/her", "they/them", "other"], include_blank: "Select pronouns" %></p>
-  </div>
+        <%# Location %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">Location</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <%= f.label :city, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.text_field :city, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors", placeholder: "Tokyo" %>
+            </div>
+            <div>
+              <%= f.label :country, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.text_field :country, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors", placeholder: "Japan" %>
+            </div>
+          </div>
+        </div>
 
-  <div class="field">
-    <p><%= f.label :height, "Height (cm)" %></p>
-    <p><%= f.number_field :height %></p>
-  </div>
+        <%# Personality %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-4">Personality & Background</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <%= f.label :education, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.text_field :education, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :occupation, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.text_field :occupation, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :zodiac_sign, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.select :zodiac_sign, %w[Aries Taurus Gemini Cancer Leo Virgo Libra Scorpio Sagittarius Capricorn Aquarius Pisces], { include_blank: "Select sign" }, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :mbti, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.select :mbti, %w[INTJ INTP ENTJ ENTP INFJ INFP ENFJ ENFP ISTJ ISFJ ESTJ ESFJ ISTP ISFP ESTP ESFP], { include_blank: "Select MBTI" }, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+            </div>
+            <div>
+              <%= f.label :language, class: "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" %>
+              <%= f.text_field :language, class: "w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors", placeholder: "English" %>
+            </div>
+          </div>
+        </div>
 
-  <div class="field">
-    <p><%= f.label :language %></p>
-    <p><%= f.text_field :language %></p>
+        <%# Submit %>
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+          <%= f.submit "Save Profile", class: "w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-6 rounded-lg transition-colors focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer" %>
+        </div>
+      </div>
+    <% end %>
   </div>
-
-  <div class="field">
-    <p><%= f.label :zodiac_sign %></p>
-    <p><%= f.select :zodiac_sign, %w[Aries Taurus Gemini Cancer Leo Virgo Libra Scorpio Sagittarius Capricorn Aquarius Pisces], include_blank: "Select sign" %></p>
-  </div>
-
-  <div class="field">
-    <p><%= f.label :education %></p>
-    <p><%= f.text_field :education %></p>
-  </div>
-
-  <div class="field">
-    <p><%= f.label :occupation %></p>
-    <p><%= f.text_field :occupation %></p>
-  </div>
-
-  <div class="field">
-    <p><%= f.label :mbti %></p>
-    <p><%= f.select :mbti, %w[INTJ INTP ENTJ ENTP INFJ INFP ENFJ ENFP ISTJ ISFJ ESTJ ESFJ ISTP ISFP ESTP ESFP], include_blank: "Select MBTI" %></p>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Save Profile" %>
-  </div>
-<% end %>
-
-<p><%= link_to "Back to Profile", profile_path %></p>
+</div>
