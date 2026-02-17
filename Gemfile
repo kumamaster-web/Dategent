@@ -73,3 +73,5 @@ gem "cloudinary"
 
 gem 'simple_form'
 gem "ruby_llm", "~> 1.11"
+
+gem "tailwindcss-rails", "~> 4.4"
