@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_14_080001) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_17_092244) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -52,6 +52,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_14_080001) do
     t.integer "match_cap_per_week", default: 5
     t.string "name"
     t.boolean "autopilot", default: false
+    t.string "personality_mode"
     t.index ["user_id"], name: "index_agents_on_user_id"
   end
 
@@ -92,6 +93,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_14_080001) do
     t.text "chat_transcript"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "compatibility_summary"
     t.index ["initiator_agent_id"], name: "index_matches_on_initiator_agent_id"
     t.index ["receiver_agent_id"], name: "index_matches_on_receiver_agent_id"
   end
@@ -179,6 +181,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_14_080001) do
     t.string "smoking"
     t.string "fitness"
     t.text "extras_json"
+    t.jsonb "preferred_venue_types"
+    t.jsonb "schedule_availability"
+    t.string "timezone"
     t.index ["user_id"], name: "index_user_preferences_on_user_id"
   end
 
@@ -204,6 +209,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_14_080001) do
     t.string "occupation"
     t.string "mbti"
     t.text "bio"
+    t.string "gender"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

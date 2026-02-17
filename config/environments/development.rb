@@ -34,8 +34,8 @@ Rails.application.configure do
   end
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
-  # replaced local with cloudinary
-  config.active_storage.service = :cloudinary
+  # Use :local for dev; :cloudinary for production (requires CLOUDINARY_URL env var)
+  config.active_storage.service = :local
 
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false

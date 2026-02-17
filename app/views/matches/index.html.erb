@@ -1,0 +1,77 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Matches</h1>
+  </div>
+
+  <%# Status Filter Tabs %>
+  <div class="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+    <%= link_to matches_path, class: "inline-flex items-center px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors #{ params[:status].blank? ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700' }" do %>
+      All
+    <% end %>
+    <% %w[screening evaluating date_proposed confirmed declined].each do |status| %>
+      <%= link_to matches_path(status: status), class: "inline-flex items-center px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors #{ params[:status] == status ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700' }" do %>
+        <%= status.titleize %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <%# Match Cards %>
+  <div class="space-y-3">
+    <% if @matches.any? %>
+      <% @matches.each do |match| %>
+        <% other_user = match_other_user(match) %>
+        <%= link_to match_path(match), class: "block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-5 hover:shadow-md transition-shadow" do %>
+          <div class="flex items-start gap-4">
+            <%# Avatar %>
+            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+              <span class="text-lg font-bold text-white"><%= other_user.first_name[0] %></span>
+            </div>
+
+            <%# Details %>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2">
+                <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 truncate"><%= other_user.first_name %></h3>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 <%= status_badge_classes(match.status) %>">
+                  <%= match.status&.titleize %>
+                </span>
+              </div>
+
+              <% if other_user.city.present? %>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5"><%= other_user.city %><%= ", #{other_user.country}" if other_user.country.present? %></p>
+              <% end %>
+
+              <%# Compatibility Score Bar %>
+              <% if match.compatibility_score %>
+                <div class="mt-3">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Compatibility</span>
+                    <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400"><%= (match.compatibility_score * 100).round %>%</span>
+                  </div>
+                  <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                    <div class="bg-gradient-to-r from-indigo-500 to-pink-500 h-1.5 rounded-full" style="width: <%= (match.compatibility_score * 100).round %>%"></div>
+                  </div>
+                </div>
+              <% end %>
+
+              <% if match.compatibility_summary.present? %>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 line-clamp-2"><%= match.compatibility_summary %></p>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% else %>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+        <svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">No matches yet</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <% if params[:status].present? %>
+            No matches with "<%= params[:status].titleize %>" status
+          <% else %>
+            Your agent is working on finding compatible matches for you
+          <% end %>
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>
