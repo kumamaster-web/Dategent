@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_19_085009) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_21_050003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -50,9 +50,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_085009) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "match_cap_per_week", default: 5
+    t.string "personality_mode", default: "friendly"
     t.string "name"
     t.boolean "autopilot", default: false
-    t.string "personality_mode"
     t.index ["user_id"], name: "index_agents_on_user_id"
   end
 
@@ -83,6 +83,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_085009) do
     t.datetime "updated_at", null: false
     t.index ["match_id"], name: "index_date_events_on_match_id"
     t.index ["venue_id"], name: "index_date_events_on_venue_id"
+  end
+
+  create_table "match_transcripts", force: :cascade do |t|
+    t.bigint "match_id", null: false
+    t.string "stage", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id", "stage"], name: "index_match_transcripts_on_match_id_and_stage", unique: true
+    t.index ["match_id"], name: "index_match_transcripts_on_match_id"
   end
 
   create_table "matches", force: :cascade do |t|
@@ -181,9 +191,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_085009) do
     t.string "smoking"
     t.string "fitness"
     t.text "extras_json"
-    t.jsonb "preferred_venue_types"
-    t.jsonb "schedule_availability"
-    t.string "timezone"
+    t.jsonb "preferred_venue_types", default: []
+    t.jsonb "schedule_availability", default: {}
+    t.string "timezone", default: "UTC"
     t.index ["user_id"], name: "index_user_preferences_on_user_id"
   end
 
@@ -208,8 +218,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_085009) do
     t.string "education"
     t.string "occupation"
     t.string "mbti"
-    t.text "bio"
     t.string "gender"
+    t.text "bio"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -235,6 +245,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_19_085009) do
   add_foreign_key "chats", "models"
   add_foreign_key "date_events", "matches"
   add_foreign_key "date_events", "venues"
+  add_foreign_key "match_transcripts", "matches"
   add_foreign_key "matches", "agents", column: "initiator_agent_id"
   add_foreign_key "matches", "agents", column: "receiver_agent_id"
   add_foreign_key "meetings", "date_events"

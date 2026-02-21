@@ -63,6 +63,11 @@ Rails.application.configure do
   # Highlight code that enqueued background job in logs.
   config.active_job.verbose_enqueue_logs = true
 
+  # Use :async adapter in dev — runs jobs in-process, no Redis required.
+  # Start Sidekiq + Redis manually if you want real queue behavior:
+  #   redis-server & bundle exec sidekiq
+  config.active_job.queue_adapter = :async
+
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 

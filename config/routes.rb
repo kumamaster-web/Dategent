@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  # Sidekiq Web dashboard — restricted to admin user
+  require "sidekiq/web"
+  authenticate :user, ->(u) { u.email == "test@example.com" } do
+    mount Sidekiq::Web => "/sidekiq"
+  end
+
   devise_for :users, controllers: {
     registrations: "users/registrations",
     sessions: "users/sessions"
