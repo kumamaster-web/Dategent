@@ -32,4 +32,12 @@ class Agent < ApplicationRecord
   def all_matches
     Match.where("initiator_agent_id = ? OR receiver_agent_id = ?", id, id)
   end
+
+  def active?
+    status == "active"
+  end
+
+  def autopilot?
+    autopilot == true
+  end
 end
