@@ -66,6 +66,11 @@ Rails.application.configure do
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 
+  # Allow requests from any ngrok subdomain (e.g. for testing webhooks)
+  config.hosts << /.*\.ngrok\.io$/
+  config.hosts << /.*\.ngrok-free\.app$/
+  config.hosts << /.*\.ngrok-free\.dev$/
+
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true
 
