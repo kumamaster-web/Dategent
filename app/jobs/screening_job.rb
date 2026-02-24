@@ -15,6 +15,8 @@ class ScreeningJob < ApplicationJob
     initiator = User.includes(:user_preference, :agent).find(initiator_user_id)
     candidate = User.includes(:user_preference, :agent).find(candidate_user_id)
 
+    Rails.logger.info "[ScreeningJob] START: #{initiator.first_name} ↔ #{candidate.first_name}"
+
     init_ctx = AgentContextBuilder.new(initiator)
     cand_ctx = AgentContextBuilder.new(candidate)
 
@@ -28,12 +30,17 @@ class ScreeningJob < ApplicationJob
     end
 
     # Skip if already past screening (idempotency guard)
-    return unless match.screening?
+    unless match.screening?
+      Rails.logger.info "[ScreeningJob] SKIP: Match ##{match.id} already #{match.status}"
+      return
+    end
 
     # RubyLLM persisted Chat — system prompt + single evaluation call
+    Rails.logger.info "[ScreeningJob] Building context and calling Gemini..."
     chat = Chat.create!
     chat.with_instructions(screening_system_prompt)
     response = chat.ask(screening_prompt(init_ctx, cand_ctx))
+    Rails.logger.info "[ScreeningJob] Gemini responded. Parsing result..."
 
     result = parse_screening_result(response.content)
 
@@ -50,10 +57,22 @@ class ScreeningJob < ApplicationJob
     match.record_transcript!("screening", result[:reasoning])
 
     # Advance to agent-to-agent negotiation if passed screening
-    NegotiationJob.perform_later(match.id) if match.evaluating?
+    if match.evaluating?
+      Rails.logger.info "[ScreeningJob] PASS (#{result[:score]} >= #{SCREENING_THRESHOLD}). Enqueuing NegotiationJob for Match ##{match.id}"
+      NegotiationJob.perform_later(match.id)
+    else
+      Rails.logger.info "[ScreeningJob] DECLINED (#{result[:score]} < #{SCREENING_THRESHOLD}). Match ##{match.id}"
+    end
 
-    Rails.logger.info "[ScreeningJob] #{initiator.first_name} ↔ #{candidate.first_name}: " \
-                      "score=#{result[:score]}, status=#{new_status}"
+    Rails.logger.info "[ScreeningJob] DONE: #{initiator.first_name} ↔ #{candidate.first_name} → #{new_status} (score: #{result[:score]})"
+  rescue JSON::ParserError => e
+    Rails.logger.error "[ScreeningJob] JSON parse error: #{e.message}"
+    Rails.logger.error "[ScreeningJob] Raw response: #{response&.content.to_s.truncate(500)}"
+    raise
+  rescue => e
+    Rails.logger.error "[ScreeningJob] ERROR: #{e.class} — #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n")
+    raise
   end
 
   private

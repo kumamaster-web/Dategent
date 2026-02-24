@@ -9,10 +9,19 @@ class MatchmakerJob < ApplicationJob
     user = User.includes(:user_preference, :agent).find(user_id)
     agent = user.agent
 
-    return unless agent&.active?
-    return unless agent&.autopilot?
+    Rails.logger.info "[MatchmakerJob] START for #{user.first_name} #{user.last_name} (ID: #{user_id})"
+
+    unless agent&.active?
+      Rails.logger.info "[MatchmakerJob] SKIP: Agent not active"
+      return
+    end
+    unless agent&.autopilot?
+      Rails.logger.info "[MatchmakerJob] SKIP: Agent not on autopilot"
+      return
+    end
 
     candidates = CandidateFinder.new(user).call
+    Rails.logger.info "[MatchmakerJob] Found #{candidates.count} candidates"
     enqueued = 0
 
     candidates.find_each do |candidate|
@@ -24,9 +33,13 @@ class MatchmakerJob < ApplicationJob
 
       ScreeningJob.perform_later(user.id, candidate.id)
       enqueued += 1
+      Rails.logger.info "[MatchmakerJob] Enqueued screening: #{user.first_name} ↔ #{candidate.first_name}"
     end
 
-    Rails.logger.info "[MatchmakerJob] User ##{user_id} (#{user.first_name}): " \
-                      "#{enqueued} screening jobs enqueued"
+    Rails.logger.info "[MatchmakerJob] DONE: #{enqueued} screening jobs enqueued"
+  rescue => e
+    Rails.logger.error "[MatchmakerJob] ERROR: #{e.class} — #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n")
+    raise
   end
 end

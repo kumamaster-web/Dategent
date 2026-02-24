@@ -18,11 +18,15 @@ class NegotiationJob < ApplicationJob
     init_user = @match.initiator_agent.user
     recv_user = @match.receiver_agent.user
 
+    Rails.logger.info "[NegotiationJob] START: Match ##{match_id} — #{init_user.first_name} ↔ #{recv_user.first_name} (score: #{@match.compatibility_score})"
+
     @init_ctx = AgentContextBuilder.new(init_user)
     @recv_ctx = AgentContextBuilder.new(recv_user)
 
     @schedule_overlap = ScheduleOverlapService.new(init_user, recv_user).call
     @venue_options = VenueFinderService.new(init_user, recv_user).call
+
+    Rails.logger.info "[NegotiationJob] Schedule overlaps: #{@schedule_overlap.size} slots | Venue options: #{@venue_options.size}"
 
     # Two separate RubyLLM Chats — one per agent, fully persisted
     agent_a_chat = Chat.create!
@@ -34,31 +38,49 @@ class NegotiationJob < ApplicationJob
     transcript = []
 
     # Agent A opens the conversation
+    Rails.logger.info "[NegotiationJob] Turn 1: #{@match.initiator_agent.name} opening..."
     a_opening_response = agent_a_chat.ask(agent_a_opening_prompt)
     a_opening = a_opening_response.content.to_s
     transcript << { speaker: @match.initiator_agent.name, message: a_opening }
+    Rails.logger.info "[NegotiationJob] Turn 1: #{a_opening.truncate(120)}"
 
-    MAX_TURNS.times do
+    MAX_TURNS.times do |i|
+      turn = i + 2
+
       # Agent B responds to what Agent A said
+      Rails.logger.info "[NegotiationJob] Turn #{turn}: #{@match.receiver_agent.name} responding..."
       b_response = agent_b_chat.ask(agent_reply_prompt(transcript))
       b_content = b_response.content.to_s
       transcript << { speaker: @match.receiver_agent.name, message: b_content }
+      Rails.logger.info "[NegotiationJob] Turn #{turn}: #{b_content.truncate(120)}"
 
-      break if decision_reached?(b_content)
+      if decision_reached?(b_content)
+        Rails.logger.info "[NegotiationJob] Decision reached by #{@match.receiver_agent.name} on turn #{turn}"
+        break
+      end
 
       # Agent A responds to Agent B
+      Rails.logger.info "[NegotiationJob] Turn #{turn + 1}: #{@match.initiator_agent.name} responding..."
       a_response = agent_a_chat.ask(agent_reply_prompt(transcript))
       a_content = a_response.content.to_s
       transcript << { speaker: @match.initiator_agent.name, message: a_content }
+      Rails.logger.info "[NegotiationJob] Turn #{turn + 1}: #{a_content.truncate(120)}"
 
-      break if decision_reached?(a_content)
+      if decision_reached?(a_content)
+        Rails.logger.info "[NegotiationJob] Decision reached by #{@match.initiator_agent.name} on turn #{turn + 1}"
+        break
+      end
     end
 
     decision = extract_decision(transcript)
+    Rails.logger.info "[NegotiationJob] Decision: #{decision[:action]} (#{transcript.size} messages)"
     finalize_match(decision, transcript)
 
-    Rails.logger.info "[NegotiationJob] Match ##{@match.id}: #{decision[:action]} " \
-                      "(#{transcript.size} messages)"
+    Rails.logger.info "[NegotiationJob] DONE: Match ##{@match.id} → #{@match.reload.status}"
+  rescue => e
+    Rails.logger.error "[NegotiationJob] ERROR on Match ##{match_id}: #{e.class} — #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n")
+    raise
   end
 
   private
