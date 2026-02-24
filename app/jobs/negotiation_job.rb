@@ -7,6 +7,7 @@
 # Pipeline: ScreeningJob → NegotiationJob → DateEvent created (or declined)
 class NegotiationJob < ApplicationJob
   queue_as :default
+  retry_on RubyLLM::ServiceUnavailableError, wait: :polynomially_longer, attempts: 5
   retry_on StandardError, wait: :polynomially_longer, attempts: 3
 
   MAX_TURNS = 8

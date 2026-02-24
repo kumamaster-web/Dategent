@@ -7,6 +7,7 @@
 # Pipeline: MatchmakerJob → ScreeningJob → NegotiationJob (if passed)
 class ScreeningJob < ApplicationJob
   queue_as :default
+  retry_on RubyLLM::ServiceUnavailableError, wait: :polynomially_longer, attempts: 5
   retry_on StandardError, wait: :polynomially_longer, attempts: 3
 
   SCREENING_THRESHOLD = 60.0
