@@ -31,6 +31,7 @@ gem "redis", ">= 4.0.1"
 
 # Background job processing
 gem "sidekiq", "~> 7.3"
+gem "connection_pool", "~> 2.4"  # pin to 2.x — 3.0 breaks sidekiq 7.3 scheduler
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
