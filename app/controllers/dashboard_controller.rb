@@ -2,6 +2,9 @@ class DashboardController < ApplicationController
   def show
     @agent = current_user.agent
     @matches = current_user_matches.order(updated_at: :desc).limit(10)
+    @proposed_matches = current_user_matches.where(status: "date_proposed").order(updated_at: :desc)
+    @confirmed_matches = current_user_matches.where(status: "confirmed").order(updated_at: :desc)
+    @declined_matches = current_user_matches.where(status: "declined").order(updated_at: :desc)
     @upcoming_dates = current_user_date_events
       .where(booking_status: %w[proposed accepted])
       .where("scheduled_time >= ?", Time.current)
