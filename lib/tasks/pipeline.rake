@@ -202,25 +202,46 @@ namespace :pipeline do
       exit 0
     end
 
-    # Pick first candidate and run screening
-    candidate = candidates.first
-    puts "\nScreening: #{test_user.first_name} ↔ #{candidate.first_name}..."
+    # Screen ALL candidates (skip reverse-direction duplicates)
+    passed = 0
+    failed = 0
+    skipped = 0
 
-    begin
-      ScreeningJob.perform_now(test_user.id, candidate.id)
-      match = Match.find_by(
-        initiator_agent: test_user.agent,
-        receiver_agent: candidate.agent
-      )
-      if match
-        puts "  Status: #{match.status}"
-        puts "  Score: #{match.compatibility_score}"
-        puts "  Summary: #{match.compatibility_summary&.truncate(200)}"
+    candidates.find_each do |candidate|
+      # Skip if already matched in either direction
+      if Match.exists?(initiator_agent: test_user.agent, receiver_agent: candidate.agent) ||
+         Match.exists?(initiator_agent: candidate.agent, receiver_agent: test_user.agent)
+        puts "  ⏭ #{candidate.first_name} — already matched, skipping"
+        skipped += 1
+        next
       end
-    rescue => e
-      puts "  ❌ Screening failed: #{e.message}"
-      puts "  #{e.backtrace.first(3).join("\n  ")}"
+
+      puts "\nScreening: #{test_user.first_name} ↔ #{candidate.first_name}..."
+
+      begin
+        ScreeningJob.perform_now(test_user.id, candidate.id)
+        match = Match.find_by(
+          initiator_agent: test_user.agent,
+          receiver_agent: candidate.agent
+        )
+        if match
+          puts "  Status: #{match.status}"
+          puts "  Score: #{match.compatibility_score}"
+          puts "  Summary: #{match.compatibility_summary&.truncate(200)}"
+          passed += 1
+        else
+          puts "  ⚠ Below threshold — no match created"
+          failed += 1
+        end
+      rescue => e
+        puts "  ❌ Screening failed: #{e.message}"
+        puts "  #{e.backtrace.first(3).join("\n  ")}"
+        failed += 1
+      end
     end
+
+    puts "\n#{'—' * 40}"
+    puts "Results: #{passed} passed, #{failed} failed/below threshold, #{skipped} skipped"
   end
 
   # ===========================================================================
@@ -509,7 +530,7 @@ namespace :pipeline do
         rails pipeline:diagnose     Full environment diagnostic check
                                     DB, test user, Gemini connection, Redis, Sidekiq
 
-        rails pipeline:run          Screen first candidate for test@example.com
+        rails pipeline:run          Screen ALL candidates for test@example.com
                                     Uses ScreeningJob.perform_now (synchronous)
                                     If score >= 60, enqueues NegotiationJob
 
