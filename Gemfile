@@ -50,6 +50,8 @@ gem "devise"
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ]
+  # allows you to use the .env file. I added it because LLM was not working.
+  gem "dotenv-rails"
 end
 
 group :development do
@@ -72,6 +74,7 @@ end
 gem "cloudinary"
 
 gem 'simple_form'
-gem "ruby_llm", "~> 1.11"
 
 gem "tailwindcss-rails", "~> 4.4"
+
+gem "ruby_llm", "~> 1.12"

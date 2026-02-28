@@ -17,7 +17,10 @@ Rails.application.routes.draw do
   resource :agent, only: [:show, :edit, :update]
 
   # Matches
-  resources :matches, only: [:index, :show]
+  resources :matches, only: [:index, :show] do
+    resources :matchesvenues, only: [:create, :index] # List of Recommened Venues aka MathchesVenue because it connects them
+  end
+
 
   # Date Events
   resources :date_events, only: [:show] do
