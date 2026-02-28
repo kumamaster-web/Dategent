@@ -6,4 +6,6 @@ RubyLLM.configure do |config|
 
   # Use the new association-based acts_as API (recommended)
   config.use_new_acts_as = true
+
+  config.gemini_api_base = 'https://generativelanguage.googleapis.com/v1beta'
 end

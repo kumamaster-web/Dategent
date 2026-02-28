@@ -1,0 +1,18 @@
+<h2>Recommended Venues</h2><br>
+
+  <ul>
+
+    <% @parsed_response.each do |venue| %>
+      <li>
+        <strong><%= venue["name"] %></strong><br>
+
+        <strong><%= venue["address"] %>
+
+        <%= link_to "Open in Google Maps",
+                    venue["Google Map URL"],
+                    target: "_blank" %> <!-- Opens in new tab -->
+      </li>
+  <% end %>
+</ul>
+
+  

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_21_050003) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -106,6 +106,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_21_050003) do
     t.text "compatibility_summary"
     t.index ["initiator_agent_id"], name: "index_matches_on_initiator_agent_id"
     t.index ["receiver_agent_id"], name: "index_matches_on_receiver_agent_id"
+  end
+
+  create_table "matches_venues", force: :cascade do |t|
+    t.bigint "match_id", null: false
+    t.bigint "venue_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id"], name: "index_matches_venues_on_match_id"
+    t.index ["venue_id"], name: "index_matches_venues_on_venue_id"
   end
 
   create_table "meetings", force: :cascade do |t|
@@ -235,6 +244,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_21_050003) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "price_tier"
+    t.string "google_map_url"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -248,6 +258,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_21_050003) do
   add_foreign_key "match_transcripts", "matches"
   add_foreign_key "matches", "agents", column: "initiator_agent_id"
   add_foreign_key "matches", "agents", column: "receiver_agent_id"
+  add_foreign_key "matches_venues", "matches"
+  add_foreign_key "matches_venues", "venues"
   add_foreign_key "meetings", "date_events"
   add_foreign_key "meetings", "venues"
   add_foreign_key "messages", "chats"
