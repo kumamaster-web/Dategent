@@ -10,6 +10,8 @@ class MatchesController < ApplicationController
   def show
     @date_events = @match.date_events.includes(:venue).order(created_at: :desc)
     @transcripts = @match.transcript_history
+    @user = @match.receiver_agent.user
+    @review = Review.new 
   end
 
   private
