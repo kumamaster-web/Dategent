@@ -1,0 +1,217 @@
+<%# Compatibility Breakdown — visual category cards %>
+<%# Falls back to text summary for legacy matches without structured breakdown %>
+
+<% if @match.has_breakdown? %>
+  <div class="mt-4 space-y-3" data-controller="breakdown-toggle">
+
+    <%# ── Personality (MBTI) ──────────────────────────────────── %>
+    <% pb = @match.personality_breakdown %>
+    <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+      <button type="button" class="w-full flex items-center justify-between text-left"
+              data-action="click->breakdown-toggle#toggle"
+              data-breakdown-toggle-target="trigger">
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+          <div class="w-9 h-9 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Personality</p>
+            <div class="flex items-center gap-2 mt-1">
+              <% if pb["user_mbti"].present? %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300"><%= pb["user_mbti"] %></span>
+              <% end %>
+              <% if pb["match_mbti"].present? %>
+                <span class="text-xs text-gray-400">&</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-pink-100 dark:bg-pink-900/40 text-pink-700 dark:text-pink-300"><%= pb["match_mbti"] %></span>
+              <% end %>
+              <% if pb["compatibility_label"].present? && pb["compatibility_label"] != "unknown" %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <%= mbti_compatibility_color(pb["compatibility_label"]) %>">
+                  <%= pb["compatibility_label"].titleize %>
+                </span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <svg class="w-4 h-4 text-gray-400 transition-transform" data-breakdown-toggle-target="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      <% if pb["commentary"].present? %>
+        <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 hidden" data-breakdown-toggle-target="panel">
+          <p class="text-xs text-gray-600 dark:text-gray-400"><%= pb["commentary"] %></p>
+        </div>
+      <% end %>
+    </div>
+
+    <%# ── Relationship Goal ───────────────────────────────────── %>
+    <% rg = @match.relationship_goal_breakdown %>
+    <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+      <button type="button" class="w-full flex items-center justify-between text-left"
+              data-action="click->breakdown-toggle#toggle"
+              data-breakdown-toggle-target="trigger">
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+          <div class="w-9 h-9 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Relationship Goal</p>
+            <div class="flex items-center gap-2 mt-1">
+              <% if rg["user_goal"].present? %>
+                <span class="text-xs text-gray-600 dark:text-gray-400"><%= rg["user_goal"]&.titleize %></span>
+              <% end %>
+              <% if rg["match_goal"].present? && rg["user_goal"].present? %>
+                <span class="text-xs text-gray-400">&</span>
+                <span class="text-xs text-gray-600 dark:text-gray-400"><%= rg["match_goal"]&.titleize %></span>
+              <% end %>
+              <%= goal_alignment_badge(rg["alignment"]) %>
+            </div>
+          </div>
+        </div>
+        <svg class="w-4 h-4 text-gray-400 transition-transform" data-breakdown-toggle-target="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      <% if rg["commentary"].present? %>
+        <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 hidden" data-breakdown-toggle-target="panel">
+          <p class="text-xs text-gray-600 dark:text-gray-400"><%= rg["commentary"] %></p>
+        </div>
+      <% end %>
+    </div>
+
+    <%# ── Lifestyle ───────────────────────────────────────────── %>
+    <% ls = @match.lifestyle_breakdown %>
+    <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+      <button type="button" class="w-full flex items-center justify-between text-left"
+              data-action="click->breakdown-toggle#toggle"
+              data-breakdown-toggle-target="trigger">
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+          <div class="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Lifestyle</p>
+            <div class="flex items-center gap-2 mt-1">
+              <%= lifestyle_dots(ls["alignment_score"].to_i) %>
+              <span class="text-xs text-gray-500 dark:text-gray-400"><%= ls["alignment_score"].to_i %>/4 aligned</span>
+            </div>
+          </div>
+        </div>
+        <svg class="w-4 h-4 text-gray-400 transition-transform" data-breakdown-toggle-target="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 hidden" data-breakdown-toggle-target="panel">
+        <% if ls["factors"].present? %>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <% ls["factors"].each do |factor_name, data| %>
+              <div class="flex items-center gap-1.5">
+                <% if data["aligned"] %>
+                  <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                <% else %>
+                  <svg class="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                <% end %>
+                <span class="text-xs text-gray-600 dark:text-gray-400 capitalize"><%= factor_name.to_s.gsub('_', ' ') %></span>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+        <% if ls["commentary"].present? %>
+          <p class="text-xs text-gray-600 dark:text-gray-400"><%= ls["commentary"] %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <%# ── Schedule ────────────────────────────────────────────── %>
+    <% sc = @match.schedule_breakdown %>
+    <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+      <button type="button" class="w-full flex items-center justify-between text-left"
+              data-action="click->breakdown-toggle#toggle"
+              data-breakdown-toggle-target="trigger">
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+          <div class="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Schedule</p>
+            <div class="flex items-center gap-3 mt-1">
+              <span class="text-lg font-bold <%= schedule_overlap_color(sc["overlap_percentage"].to_i) %>"><%= sc["overlap_percentage"].to_i %>%</span>
+              <div class="flex-1 max-w-[120px]">
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                  <div class="h-1.5 rounded-full transition-all bg-gradient-to-r from-indigo-500 to-pink-500" style="width: <%= sc["overlap_percentage"].to_i %>%"></div>
+                </div>
+              </div>
+              <% if sc["best_days"].present? %>
+                <div class="flex gap-1">
+                  <% Array(sc["best_days"]).first(3).each do |day| %>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"><%= day.to_s[0..2].capitalize %></span>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <svg class="w-4 h-4 text-gray-400 transition-transform" data-breakdown-toggle-target="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      <% if sc["commentary"].present? %>
+        <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 hidden" data-breakdown-toggle-target="panel">
+          <p class="text-xs text-gray-600 dark:text-gray-400"><%= sc["commentary"] %></p>
+        </div>
+      <% end %>
+    </div>
+
+    <%# ── Shared Interests ────────────────────────────────────── %>
+    <% si = @match.shared_interests_breakdown %>
+    <% interests = Array(si["interests"]) %>
+    <% if interests.any? || si["commentary"].present? %>
+      <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <button type="button" class="w-full flex items-center justify-between text-left"
+                data-action="click->breakdown-toggle#toggle"
+                data-breakdown-toggle-target="trigger">
+          <div class="flex items-center gap-3 flex-1 min-w-0">
+            <div class="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Shared Interests</p>
+              <div class="flex flex-wrap gap-1.5 mt-1">
+                <% interests.first(6).each do |interest| %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800"><%= interest %></span>
+                <% end %>
+                <% if interests.size > 6 %>
+                  <span class="text-[11px] text-gray-400">+<%= interests.size - 6 %> more</span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <svg class="w-4 h-4 text-gray-400 transition-transform" data-breakdown-toggle-target="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <% if si["commentary"].present? %>
+          <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 hidden" data-breakdown-toggle-target="panel">
+            <p class="text-xs text-gray-600 dark:text-gray-400"><%= si["commentary"] %></p>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%# ── AI Insights (dynamic, non-templated) ────────────────── %>
+    <% insights = @match.unique_insights %>
+    <% if insights.any? %>
+      <div class="p-4 bg-gradient-to-br from-indigo-50 to-pink-50 dark:from-indigo-900/10 dark:to-pink-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800/50">
+        <div class="flex items-center gap-2 mb-2">
+          <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          <p class="text-xs font-semibold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">AI Insights</p>
+        </div>
+        <ul class="space-y-1.5">
+          <% insights.each do |insight| %>
+            <li class="flex items-start gap-2">
+              <span class="text-indigo-400 mt-0.5">•</span>
+              <span class="text-xs text-gray-700 dark:text-gray-300"><%= insight %></span>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+  </div>
+
+<% elsif @match.compatibility_summary.present? %>
+  <%# Legacy fallback: plain text summary %>
+  <div class="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+    <p class="text-sm font-medium text-indigo-900 dark:text-indigo-200 mb-1">Compatibility Summary</p>
+    <p class="text-sm text-indigo-700 dark:text-indigo-300"><%= @match.compatibility_summary %></p>
+  </div>
+<% end %>
