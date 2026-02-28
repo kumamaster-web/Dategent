@@ -51,13 +51,8 @@
         </div>
       <% end %>
 
-      <%# Compatibility Summary %>
-      <% if @match.compatibility_summary.present? %>
-        <div class="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
-          <p class="text-sm font-medium text-indigo-900 dark:text-indigo-200 mb-1">Compatibility Summary</p>
-          <p class="text-sm text-indigo-700 dark:text-indigo-300"><%= @match.compatibility_summary %></p>
-        </div>
-      <% end %>
+      <%# Compatibility Breakdown %>
+      <%= render "matches/compatibility_breakdown" %>
     </div>
   </div>
 

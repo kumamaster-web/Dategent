@@ -37,9 +37,11 @@ def attach_seed_photo(user, filename)
 end
 
 # ---------------------------------------------------------------------------
-# 1. USER PROFILES (20 diverse users)
+# 1. USER PROFILES (100 diverse users)
 # ---------------------------------------------------------------------------
 # Index 0 = test account (test@example.com / password)
+# Indices 0-19 = original handcrafted profiles
+# Indices 20-99 = programmatically generated diverse profiles
 USER_PROFILES = [
   # 0 — YOUR test account
   { first_name: "Alex",    last_name: "Rivera",     email: "test@example.com",
@@ -200,7 +202,7 @@ USER_PROFILES = [
     mbti: "ENTJ", zodiac_sign: "Taurus",  education: "MBA",
     occupation: "Brand Strategist", language: "EN",
     bio: "French precision meets Tokyo energy. Wine snob, early riser, and firm believer that cheese is a personality trait." },
-].freeze
+]
 
 # ---------------------------------------------------------------------------
 # 2. USER PREFERENCE TEMPLATES
@@ -426,7 +428,7 @@ PREFERENCE_TEMPLATES = [
       "thursday"  => %w[19:00 19:30 20:00 20:30],
       "saturday"  => %w[12:00 12:30 13:00 18:00 18:30 19:00 19:30 20:00]
     } },
-].freeze
+]
 
 # Agent personality modes mapped to user indices
 AGENT_CONFIGS = [
@@ -451,7 +453,227 @@ AGENT_CONFIGS = [
   [ 17, "witty",         9,   true,      "Explorer"    ],
   [ 18, "caring",        3,   false,     "Composer"    ],
   [ 19, "professional",  6,   true,      "Strategiste" ],
-].freeze
+]
+
+# ---------------------------------------------------------------------------
+# 2b. GENERATED USERS 20-99 (80 diverse profiles)
+# ---------------------------------------------------------------------------
+GEN_M_FIRST = %w[
+  Takeshi Kai Javier Leonardo Adnan Wei Hugo Arjun Dmitri Felix
+  Santiago Rafael Yuto Hassan Ibrahim Liam Naoki Oscar Ravi Tariq
+  Satoshi Paolo Viktor Akira Ethan Mateo Kohei Daejung Giovanni Andre
+  Khalil Jun Maxim Ryota Pablo Sven Theo Wen Zain Nikolai
+]
+GEN_F_FIRST = %w[
+  Haruna Sophie Valentina Ananya Fatima Yuna Camila Ingrid Nadia Aria
+  Rosa Ayumi Leila Chiara Miko Amara Rin Isabelle Sana Freya
+  Kaori Helena Dina Emiko Lucia Aaliyah Hana Miriam Thida Jia
+  Natasha Clara Nina Noemi Mariko Vera Elise Kozue Yara Selena
+]
+GEN_SURNAMES = %w[
+  Mori Andersen Garcia Patel Khoury Wong Mueller Das Petrov Lindqvist
+  Lopez Costa Yamamoto Khan Okonkwo Murphy Sato Larsson Bianchi Gupta
+  Moreira Taniguchi Novak Nair Eriksen Morales Cheng Kitagawa Romero Wu
+  Weber Ahmad Ikeda Torres Bjork Laurent Nakajima Silva Jensen Rao
+]
+GEN_CITIES   = (%w[Tokyo] * 30 + %w[Osaka] * 4 + %w[Yokohama] * 3 + %w[Kyoto] * 2 + ["Nagoya"])
+GEN_MBTIS    = %w[ENFJ ENFP ENTJ ENTP ESFJ ESFP ESTJ ESTP INFJ INFP INTJ INTP ISFJ ISFP ISTJ ISTP]
+GEN_ZODIACS  = %w[Aries Taurus Gemini Cancer Leo Virgo Libra Scorpio Sagittarius Capricorn Aquarius Pisces]
+GEN_EDUS     = ["Bachelor's", "Master's", "PhD", "Bachelor's", "Master's"]
+GEN_DAYS     = %w[monday tuesday wednesday thursday friday saturday sunday]
+
+GEN_OCC_M = [
+  "Backend Engineer", "Dentist", "Film Editor", "Financial Planner", "Biotech Researcher",
+  "Game Developer", "Patent Attorney", "Museum Curator", "AI Engineer", "Novelist",
+  "Executive Chef", "Marine Biologist", "Cardiologist", "Blockchain Developer", "Supply Chain Analyst",
+  "Data Engineer", "Philosophy Professor", "Sound Engineer", "Robotics Engineer", "Mechanical Engineer",
+  "Documentary Filmmaker", "Sports Medicine Doctor", "Wine Importer", "Urban Planner", "Aerospace Engineer",
+  "Venture Capitalist", "Jazz Musician", "Cybersecurity Analyst", "Climate Scientist", "Orthopedic Surgeon",
+  "Sake Brewer", "Manga Artist", "Structural Engineer", "Diplomat", "Neuroscientist",
+  "Furniture Maker", "Photojournalist", "Coffee Roaster", "App Developer", "Oceanographer"
+]
+GEN_OCC_F = [
+  "UX Researcher", "Pilates Instructor", "Journalist", "Social Worker", "Nutritionist",
+  "Translator", "Physical Therapist", "Fashion Buyer", "Podcast Host", "Dance Instructor",
+  "Interior Designer", "Ceramicist", "Veterinary Tech", "Brand Manager", "Midwife",
+  "Pastry Chef", "Documentary Producer", "Art Therapist", "Marine Conservationist", "Human Rights Lawyer",
+  "Fragrance Designer", "Opera Singer", "Epidemiologist", "Tea Sommelier", "Heritage Architect",
+  "Botanical Illustrator", "Speech Pathologist", "Ethical Fashion Designer", "Food Scientist", "Renewable Energy Consultant",
+  "Calligrapher", "Children's Book Author", "Acupuncturist", "Film Critic", "Environmental Lawyer",
+  "Textile Artist", "Video Game Designer", "Molecular Gastronomy Chef", "Space Policy Analyst", "Winemaker"
+]
+
+GEN_BIOS_M = [
+  "Building backends and BBQ grills with equal precision. Ask me about my sourdough starter.",
+  "Danish expat who surfs at Shonan on weekends. I can cook a mean smørrebrød.",
+  "Architecture meets street art — I sketch buildings by day and murals by night.",
+  "Former competitive swimmer turned weekend trail runner. I collect rare teas.",
+  "Working on affordable housing projects. Guitar player, amateur astronomer.",
+  "Neural networks by day, noodle networks by night. I know every ramen spot in Shinjuku.",
+  "Argentine tango enthusiast who also happens to be a dentist. I promise I'm fun.",
+  "I turned my love of old movies into a career. Can quote every Kurosawa film.",
+  "Coding in Rust and making actual rust art. Yes, it's a real medium.",
+  "Three passports, two cats, one obsession with finding the perfect espresso.",
+  "Grew up on a farm, now I grow startups. Still wake up at 5am.",
+  "Brazilian-Italian, raised on football and pasta. I do triathlons for fun.",
+  "I study fish migration patterns and make a mean ceviche. Go figure.",
+  "Former drummer now building Web3 tools. I still play in a covers band.",
+  "Cricket stats nerd and amateur botanist. My balcony is a jungle.",
+  "I optimize databases and my morning routine with equal intensity.",
+  "Teaching Kant to undergrads and cooking Thai food — the dual life.",
+  "Mixed records at Fabric, Berghain, and Womb. Looking for someone who doesn't just like EDM.",
+  "Making robots that fold laundry. The dream is almost real.",
+  "I restore vintage motorcycles and read philosophy. Quiet Saturdays are my thing.",
+  "Filming street food stories across Asia. My camera roll is 90 percent food.",
+  "Former rugby player, now I fix knees. Sundays are for long brunch.",
+  "Importing Burgundy wines to Tokyo. I paired sake with cheese once — it worked.",
+  "Designing parks and public spaces. I believe cities should feel alive.",
+  "Rockets are my day job, ramen is my night passion. I'm simpler than I sound.",
+  "Seed-stage investor who actually reads every pitch deck. Piano in my free time.",
+  "Playing trumpet at jazz bars in Shinjuku. Day job: data migration.",
+  "Keeping networks safe and my sourdough alive. Both require patience.",
+  "Studying coral reef recovery. Weekend surfer, weeknight cook.",
+  "I fix bones and broken IKEA furniture with equal confidence.",
+  "Brewing sake in Niigata on weekends. Weekdays in a Tokyo lab.",
+  "Drawing manga nobody reads yet. One day I'll get serialized.",
+  "Building earthquake-proof buildings and unshakeable playlists.",
+  "Negotiating trade deals and dinner reservations — both are high stakes.",
+  "Mapping brain circuits and making playlist circuits. Neuroscience is wild.",
+  "Handcrafting chairs from Japanese cypress. Slow work, good coffee.",
+  "Shooting conflict zones and cat cafes with the same lens. Balance matters.",
+  "Roasting single-origin beans and strong opinions. Come debate me.",
+  "Shipping apps and shipping dad jokes. Both deploy on Fridays.",
+  "Studying deep-sea vents. My fun fact game is unbeatable."
+]
+GEN_BIOS_F = [
+  "Research by day, rock climbing by night. I'll beta-test your problems.",
+  "Moved from Stockholm to teach pilates. My Swedish meatball recipe is legendary.",
+  "Covering Tokyo's underground art scene. Camera always in my bag.",
+  "Building community programs for immigrant families. Weekend potter.",
+  "I can plan a meal that heals your soul. Turmeric is not optional.",
+  "Translating poetry between Japanese and Portuguese. Bilingual puns are my brand.",
+  "Fixing backs and making pottery. My hands are always busy.",
+  "Curating collections for a Harajuku concept store. Vintage obsessed.",
+  "Interviewing fascinating people for a living — let me interview you over coffee.",
+  "Teaching ballet to adults who thought it was too late. It never is.",
+  "I redesigned my apartment three times this year. Send me your floor plan.",
+  "Making bowls on a wheel and filling them with homemade soup.",
+  "Saving injured wildlife and baking elaborate birthday cakes. Weekends are intense.",
+  "Turning B2B brands into something people actually remember. Off-hours potter.",
+  "Catching babies and catching flights. My schedule is beautifully chaotic.",
+  "Croissants are my love language. Line starts at 6am.",
+  "Making films about people who build things with their hands.",
+  "Art therapy for teens. I cry at Pixar movies and I own it.",
+  "Tracking plastic pollution in Sagami Bay. Scuba certified and salty.",
+  "Arguing for human rights in court, arguing about ramen rankings at dinner.",
+  "Designing perfumes inspired by Tokyo neighborhoods. Daikanyama smells like hinoki.",
+  "Singing Puccini at night, doing spreadsheets by day. Very dramatic life.",
+  "Tracking disease patterns and making really good infographics.",
+  "Curating rare teas from Uji. My apartment smells incredible.",
+  "Restoring 100-year-old machiya in Kyoto. I love old things.",
+  "Painting extinct flowers for botanical archives. Quiet life, loud garden.",
+  "Helping kids find their words. Weekend hiker, weeknight reader.",
+  "Making clothes that last 10 years, not 10 washes.",
+  "Engineering better plant-based cheese. The future is delicious.",
+  "Solar panels are my love language. Also actual love languages.",
+  "Brush, ink, silence. I do modern calligraphy and competitive karaoke.",
+  "Writing stories for the small humans who inherited the world.",
+  "Ancient needles, modern problems. Traditional medicine meets data science.",
+  "Watching 300 movies a year and writing about them. Send me your favorites.",
+  "Suing polluters by day, planting trees by night. It balances out.",
+  "Weaving textiles from recycled ocean plastic. My loom is enormous.",
+  "Designing games where kindness is the winning strategy.",
+  "Making foams and gels that taste like childhood memories.",
+  "Writing policy on satellite debris. My job title confuses everyone.",
+  "Growing grapes in Yamanashi on weekends. Winemaking is patient work."
+]
+
+GEN_VENUE_COMBOS = [
+  %w[dinner coffee], %w[dinner drinks outdoor], %w[coffee outdoor activity],
+  %w[dinner drinks], %w[outdoor activity], %w[dinner coffee outdoor],
+  %w[drinks activity], %w[coffee dinner], %w[dinner outdoor], %w[drinks coffee outdoor]
+]
+GEN_MODES    = %w[friendly professional witty caring direct]
+GEN_SUFFIXES = %w[Companion Advisor Jester Heart Scout Guide Ally Sage Spark Sherpa]
+
+40.times do |i|
+  m_idx = 20 + (i * 2)
+  f_idx = 21 + (i * 2)
+
+  # --- Male user (even index) ---
+  USER_PROFILES << {
+    first_name: GEN_M_FIRST[i], last_name: GEN_SURNAMES[i],
+    email: "seed-#{GEN_M_FIRST[i].downcase}#{m_idx}@dategency.com",
+    gender: "male", city: GEN_CITIES[i % GEN_CITIES.size], country: "Japan",
+    date_of_birth: Date.new(1988 + (i % 10), 1 + (i % 12), 1 + (i * 13 % 28)),
+    height: 168 + (i % 20), pronouns: "he/him",
+    mbti: GEN_MBTIS[i % 16], zodiac_sign: GEN_ZODIACS[i % 12],
+    education: GEN_EDUS[i % 5], occupation: GEN_OCC_M[i], language: "EN",
+    bio: GEN_BIOS_M[i]
+  }
+
+  # --- Female user (odd index) ---
+  USER_PROFILES << {
+    first_name: GEN_F_FIRST[i], last_name: GEN_SURNAMES[39 - i],
+    email: "seed-#{GEN_F_FIRST[i].downcase}#{f_idx}@dategency.com",
+    gender: "female", city: GEN_CITIES[(i + 5) % GEN_CITIES.size], country: "Japan",
+    date_of_birth: Date.new(1990 + (i % 8), 1 + ((i + 6) % 12), 1 + ((i * 17 + 5) % 28)),
+    height: 153 + (i % 18), pronouns: "she/her",
+    mbti: GEN_MBTIS[(i + 8) % 16], zodiac_sign: GEN_ZODIACS[(i + 6) % 12],
+    education: GEN_EDUS[(i + 2) % 5], occupation: GEN_OCC_F[i], language: "EN",
+    bio: GEN_BIOS_F[i]
+  }
+
+  # --- Male preferences ---
+  m_avail = {}
+  [GEN_DAYS[(i * 3) % 7], GEN_DAYS[(i * 5 + 2) % 7], GEN_DAYS[(i * 11 + 4) % 7]].uniq.each_with_index do |day, di|
+    base_h = 10 + (i + di * 3) % 12
+    slots = (0..(2 + (i + di) % 4)).map do |s|
+      format("%02d:%s", [base_h + s / 2, 23].min, s.odd? ? "30" : "00")
+    end
+    m_avail[day] = slots.uniq
+  end
+  PREFERENCE_TEMPLATES << {
+    preferred_gender: "female", min_age: 24 + (i % 4), max_age: 33 + (i % 6),
+    max_distance: [15, 20, 25, 30, 40][i % 5],
+    budget_level: %w[$$ $$ $$$ $$$ $$$$][i % 5],
+    relationship_goal: %w[serious serious serious casual open_to_all][i % 5],
+    alcohol: %w[sometimes sometimes never often sometimes][i % 5],
+    smoking: i % 8 == 0 ? "sometimes" : "never",
+    fitness: %w[active sometimes active very_active sometimes][i % 5],
+    preferred_venue_types: GEN_VENUE_COMBOS[i % 10],
+    timezone: "Asia/Tokyo", schedule_availability: m_avail
+  }
+
+  # --- Female preferences ---
+  f_avail = {}
+  [GEN_DAYS[(i * 2 + 1) % 7], GEN_DAYS[(i * 4 + 3) % 7], GEN_DAYS[(i * 13 + 5) % 7]].uniq.each_with_index do |day, di|
+    base_h = 11 + (i + di * 2 + 1) % 11
+    slots = (0..(2 + (i + di + 1) % 4)).map do |s|
+      format("%02d:%s", [base_h + s / 2, 23].min, s.odd? ? "30" : "00")
+    end
+    f_avail[day] = slots.uniq
+  end
+  PREFERENCE_TEMPLATES << {
+    preferred_gender: "male", min_age: 25 + (i % 3), max_age: 34 + (i % 5),
+    max_distance: [20, 25, 20, 30, 35][i % 5],
+    budget_level: %w[$$$ $$ $$ $$$ $$$$][i % 5],
+    relationship_goal: %w[serious open_to_all serious serious casual][i % 5],
+    alcohol: %w[sometimes sometimes sometimes never often][i % 5],
+    smoking: "never",
+    fitness: %w[sometimes active sometimes active very_active][i % 5],
+    preferred_venue_types: GEN_VENUE_COMBOS[(i + 3) % 10],
+    timezone: "Asia/Tokyo", schedule_availability: f_avail
+  }
+
+  # --- Agent configs for both ---
+  AGENT_CONFIGS << [m_idx, GEN_MODES[i % 5], 3 + (i % 7), i % 3 != 0, GEN_SUFFIXES[i % 10]]
+  AGENT_CONFIGS << [f_idx, GEN_MODES[(i + 2) % 5], 3 + ((i + 1) % 7), (i + 1) % 3 != 0, GEN_SUFFIXES[(i + 5) % 10]]
+end
+
+USER_PROFILES.freeze
+PREFERENCE_TEMPLATES.freeze
+AGENT_CONFIGS.freeze
 
 # ---------------------------------------------------------------------------
 # 3. VENUES
@@ -487,6 +709,36 @@ VENUE_DATA = [
   # 9
   { name: "Inokashira Park",       address: "1-18-31 Gotenyama, Musashino", city: "Tokyo",
     venue_type: "outdoor", latitude: 35.6993, longitude: 139.5735, rating: 4.6, price_tier: 1 },
+  # 10
+  { name: "Afuri Ramen Ebisu",     address: "1-1-7 Ebisu, Shibuya-ku",      city: "Tokyo",
+    venue_type: "dinner",  latitude: 35.6468, longitude: 139.7103, rating: 4.4, price_tier: 2 },
+  # 11
+  { name: "Mori Art Museum",       address: "6-10-1 Roppongi, Minato-ku",   city: "Tokyo",
+    venue_type: "activity", latitude: 35.6604, longitude: 139.7292, rating: 4.5, price_tier: 2 },
+  # 12
+  { name: "Bar Gen Yamamoto",      address: "1-6-4 Azabu-Juban, Minato-ku", city: "Tokyo",
+    venue_type: "drinks",  latitude: 35.6547, longitude: 139.7370, rating: 4.7, price_tier: 4 },
+  # 13
+  { name: "Shinjuku Gyoen",        address: "11 Naitomachi, Shinjuku-ku",   city: "Tokyo",
+    venue_type: "outdoor", latitude: 35.6852, longitude: 139.7100, rating: 4.6, price_tier: 1 },
+  # 14
+  { name: "Glitch Coffee Ginza",   address: "4-6-15 Ginza, Chuo-ku",        city: "Tokyo",
+    venue_type: "coffee",  latitude: 35.6717, longitude: 139.7649, rating: 4.4, price_tier: 2 },
+  # 15
+  { name: "Osaka Castle Park",     address: "1-1 Osakajo, Chuo-ku",         city: "Osaka",
+    venue_type: "outdoor", latitude: 34.6873, longitude: 135.5262, rating: 4.5, price_tier: 1 },
+  # 16
+  { name: "Kiyomizu-dera Area",    address: "1-294 Kiyomizu, Higashiyama",  city: "Kyoto",
+    venue_type: "outdoor", latitude: 34.9948, longitude: 135.7850, rating: 4.7, price_tier: 1 },
+  # 17
+  { name: "Namba Parks",            address: "2-10-70 Namba-naka, Naniwa-ku", city: "Osaka",
+    venue_type: "activity", latitude: 34.6608, longitude: 135.5016, rating: 4.3, price_tier: 2 },
+  # 18
+  { name: "Yamashita Park",        address: "279 Yamashitacho, Naka-ku",    city: "Yokohama",
+    venue_type: "outdoor", latitude: 35.4421, longitude: 139.6509, rating: 4.4, price_tier: 1 },
+  # 19
+  { name: "Atsuta Houraiken",      address: "503 Godo, Atsuta-ku",          city: "Nagoya",
+    venue_type: "dinner",  latitude: 35.1282, longitude: 136.9066, rating: 4.5, price_tier: 3 },
 ].freeze
 
 # ---------------------------------------------------------------------------
@@ -899,8 +1151,143 @@ end
 puts "\n💕 Creating matches..."
 test_agent = agents[0] # Alex Rivera's agent
 
+# Helper: build a compatibility_breakdown hash
+def seed_breakdown(u_mbti:, m_mbti:, label:, p_note:,
+                   u_goal:, m_goal:, align:, g_note:,
+                   factors:, l_score:, l_note:,
+                   slots:, mins:, pct:, days:, s_note:,
+                   interests: [], i_note: nil,
+                   insights: [], breaks: [])
+  {
+    personality: { user_mbti: u_mbti, match_mbti: m_mbti, compatibility_label: label, commentary: p_note },
+    relationship_goal: { user_goal: u_goal, match_goal: m_goal, alignment: align, commentary: g_note },
+    lifestyle: { factors: factors, alignment_score: l_score, commentary: l_note },
+    schedule: { overlap_slots: slots, overlap_minutes: mins, overlap_percentage: pct, best_days: days, commentary: s_note },
+    shared_interests: { interests: interests, commentary: i_note },
+    unique_insights: insights,
+    dealbreakers: breaks
+  }
+end
+
+# Shorthand for lifestyle factors
+def lf(alc_u, alc_m, smk_u, smk_m, fit_u, fit_m, bud_u, bud_m)
+  {
+    alcohol:      { user_value: alc_u, match_value: alc_m, aligned: alc_u == alc_m },
+    smoking:      { user_value: smk_u, match_value: smk_m, aligned: smk_u == smk_m },
+    fitness:      { user_value: fit_u, match_value: fit_m, aligned: fit_u == fit_m },
+    budget_level: { user_value: bud_u, match_value: bud_m, aligned: ({"$"=>1,"$$"=>2,"$$$"=>3,"$$$$"=>4}[bud_u].to_i - {"$"=>1,"$$"=>2,"$$$"=>3,"$$$$"=>4}[bud_m].to_i).abs <= 1 }
+  }
+end
+
+# Pre-built breakdowns for test-user matches
+BD_ALEX_SARAH = seed_breakdown(
+  u_mbti: "ENFJ", m_mbti: "INFP", label: "complementary",
+  p_note: "ENFJ and INFP share intuition and feeling — one of the most naturally harmonious pairings.",
+  u_goal: "serious", m_goal: "serious", align: "aligned",
+  g_note: "Both are looking for a committed relationship.",
+  factors: lf("sometimes","sometimes","never","never","active","sometimes","$$$","$$"), l_score: 3,
+  l_note: "Strong lifestyle match with a minor fitness gap.",
+  slots: 2, mins: 60, pct: 25, days: ["saturday"],
+  s_note: "Limited but workable Saturday overlap.",
+  interests: ["trying new restaurants", "creative pursuits", "meaningful conversation"],
+  i_note: "Both value depth and authentic connection.",
+  insights: ["Both are intuitive communicators who prefer depth over small talk",
+             "Alex's warmth pairs beautifully with Sarah's artistic sensitivity"]
+)
+
+BD_MARCUS_ALEX = seed_breakdown(
+  u_mbti: "ENTJ", m_mbti: "ENFJ", label: "complementary",
+  p_note: "Two natural leaders — ENTJ's strategic mind meets ENFJ's people skills. Power duo energy.",
+  u_goal: "serious", m_goal: "serious", align: "aligned",
+  g_note: "Both are looking for something meaningful and long-term.",
+  factors: lf("sometimes","sometimes","never","never","active","active","$$$$","$$$"), l_score: 4,
+  l_note: "Excellent lifestyle match across all four factors.",
+  slots: 10, mins: 300, pct: 100, days: ["saturday", "friday"],
+  s_note: "Outstanding schedule alignment — every available slot overlaps.",
+  interests: ["fitness", "career ambition", "fine dining", "trying new restaurants"],
+  i_note: "Both are driven professionals who value staying active.",
+  insights: ["Two ENxJ types will understand each other's drive for structure",
+             "Both lead with decisiveness but express it differently — strategic vs empathetic"]
+)
+
+BD_ALEX_YUKI = seed_breakdown(
+  u_mbti: "ENFJ", m_mbti: "ISFJ", label: "complementary",
+  p_note: "ENFJ and ISFJ share a deep caring nature — both prioritize others' wellbeing.",
+  u_goal: "serious", m_goal: "serious", align: "aligned",
+  g_note: "Both want a committed, nurturing relationship.",
+  factors: lf("sometimes","never","never","never","active","sometimes","$$$","$$"), l_score: 2,
+  l_note: "Some lifestyle differences but fundamentally compatible values.",
+  slots: 4, mins: 120, pct: 40, days: ["saturday", "wednesday"],
+  s_note: "Good Saturday lunchtime and Wednesday evening overlap.",
+  interests: ["cooking", "food exploration", "caring for others", "cozy atmospheres"],
+  i_note: "Both express love through food — Alex cooks, Yuki makes legendary gyoza.",
+  insights: ["The food connection is genuine — two people who show love through cooking",
+             "Yuki's steady warmth balances Alex's big-picture energy perfectly"]
+)
+
+BD_ALEX_PRIYA = seed_breakdown(
+  u_mbti: "ENFJ", m_mbti: "ENFP", label: "complementary",
+  p_note: "ENFJ + ENFP is one of the most celebrated pairings — shared idealism and high energy.",
+  u_goal: "serious", m_goal: "open_to_all", align: "partial",
+  g_note: "Alex wants serious, Priya is open to all — partial alignment but room to grow.",
+  factors: lf("sometimes","sometimes","never","never","active","active","$$$","$$"), l_score: 3,
+  l_note: "Great lifestyle match — both active non-smokers with compatible budgets.",
+  slots: 3, mins: 90, pct: 33, days: ["saturday", "wednesday"],
+  s_note: "Saturday mornings and Wednesday evenings overlap nicely.",
+  interests: ["hiking", "outdoor activities", "intellectual conversation", "books", "new experiences"],
+  i_note: "Both are curious explorers who love learning and discussing ideas.",
+  insights: ["Two extroverted idealists with boundless curiosity — conversation will never run dry",
+             "Priya's 52-book habit gives Alex endless dinner conversation starters"]
+)
+
+BD_LUNA_ALEX = seed_breakdown(
+  u_mbti: "INFJ", m_mbti: "ENFJ", label: "complementary",
+  p_note: "INFJ + ENFJ share the same cognitive functions — deep mutual understanding.",
+  u_goal: "open_to_all", m_goal: "serious", align: "partial",
+  g_note: "Luna is open, Alex wants serious — space to explore authentically.",
+  factors: lf("sometimes","sometimes","never","never","sometimes","active","$$","$$$"), l_score: 3,
+  l_note: "Compatible lifestyles — budget difference bridged by shared love of casual spots.",
+  slots: 3, mins: 90, pct: 37, days: ["saturday"],
+  s_note: "Saturday afternoon overlap is the sweet spot.",
+  interests: ["photography", "creative expression", "cozy coffee shops", "meaningful conversation"],
+  i_note: "Both see the world through a creative lens and love discovering hidden gems.",
+  insights: ["Luna's introspective depth draws out Alex's warmth in a natural way",
+             "Both prefer authentic connection over flashy gestures — Fuglen was the perfect fit"]
+)
+
+BD_ALEX_JAMES = seed_breakdown(
+  u_mbti: "ENFJ", m_mbti: "ISTP", label: "challenging",
+  p_note: "ENFJ and ISTP are on opposite ends of the spectrum — requires significant effort.",
+  u_goal: "serious", m_goal: "casual", align: "misaligned",
+  g_note: "Fundamental mismatch: Alex wants serious commitment, James prefers casual.",
+  factors: lf("sometimes","often","never","sometimes","active","sometimes","$$$","$$"), l_score: 1,
+  l_note: "Multiple lifestyle conflicts — alcohol, smoking, fitness, and budget all differ.",
+  slots: 1, mins: 30, pct: 8, days: ["friday"],
+  s_note: "Negligible schedule overlap — only one slot on Friday evenings.",
+  interests: ["music", "trying new things"],
+  i_note: "Surface-level overlap doesn't compensate for core incompatibilities.",
+  insights: ["The geographic distance (Tokyo vs Osaka) adds practical friction",
+             "Different social energy levels would create persistent tension"],
+  breaks: ["Relationship goals fundamentally misaligned", "Lifestyle values conflict on multiple axes"]
+)
+
+BD_AISHA_ALEX = seed_breakdown(
+  u_mbti: "INTJ", m_mbti: "ENFJ", label: "neutral",
+  p_note: "INTJ and ENFJ bring very different energies — analytical meets empathetic. Interesting dynamic.",
+  u_goal: "serious", m_goal: "serious", align: "aligned",
+  g_note: "Both looking for something serious — goals align clearly.",
+  factors: lf("sometimes","sometimes","never","never","active","active","$$$","$$$"), l_score: 4,
+  l_note: "Perfect lifestyle alignment across all four factors.",
+  slots: 4, mins: 120, pct: 50, days: ["saturday"],
+  s_note: "Solid Saturday evening overlap.",
+  interests: ["intellectual conversation", "career ambition", "Japanese cuisine", "cultural events"],
+  i_note: "Both are intellectually driven professionals who value depth.",
+  insights: ["Aisha's directness (INTJ) complements Alex's warmth (ENFJ) for efficient communication",
+             "Shared $$$ budget and love of upscale dining makes venue selection easy"]
+)
+
 # Helper to build match
-def create_match(initiator, receiver, status, score, summary_key, transcript_key)
+def create_match(initiator, receiver, status, score, summary_key, transcript_key, breakdown: {})
   match = Match.find_or_initialize_by(
     initiator_agent: initiator,
     receiver_agent: receiver
@@ -909,7 +1296,8 @@ def create_match(initiator, receiver, status, score, summary_key, transcript_key
     status: status,
     compatibility_score: score,
     compatibility_summary: COMPATIBILITY_SUMMARIES[summary_key],
-    chat_transcript: AGENT_TRANSCRIPTS[transcript_key]
+    chat_transcript: AGENT_TRANSCRIPTS[transcript_key],
+    compatibility_breakdown: breakdown
   )
   match.save!
   puts "  #{initiator.user.first_name} ↔ #{receiver.user.first_name}: #{status}"
@@ -931,25 +1319,25 @@ def create_transcript_history(match, stages_data)
 end
 
 # Match 1: screening (test user initiated → Sarah)
-match_screening = create_match(test_agent, agents[1], "screening", 0.0, :screening, :screening)
+match_screening = create_match(test_agent, agents[1], "screening", 0.0, :screening, :screening, breakdown: BD_ALEX_SARAH)
 
 # Match 2: evaluating (Marcus → test user)
-match_evaluating = create_match(agents[2], test_agent, "evaluating", 72.5, :evaluating_marcus_alex, :evaluating_marcus_alex)
+match_evaluating = create_match(agents[2], test_agent, "evaluating", 72.5, :evaluating_marcus_alex, :evaluating_marcus_alex, breakdown: BD_MARCUS_ALEX)
 
 # Match 3: date_proposed (test user → Yuki) — Tsuta Ramen
-match_proposed = create_match(test_agent, agents[3], "date_proposed", 81.0, :proposed_alex_yuki, :proposed_alex_yuki)
+match_proposed = create_match(test_agent, agents[3], "date_proposed", 81.0, :proposed_alex_yuki, :proposed_alex_yuki, breakdown: BD_ALEX_YUKI)
 
 # Match 4: confirmed (test user → Priya) — Yoyogi Park, future
-match_confirmed_future = create_match(test_agent, agents[5], "confirmed", 87.0, :confirmed_alex_priya, :confirmed_alex_priya)
+match_confirmed_future = create_match(test_agent, agents[5], "confirmed", 87.0, :confirmed_alex_priya, :confirmed_alex_priya, breakdown: BD_ALEX_PRIYA)
 
 # Match 5: confirmed (Luna → test user) — Fuglen Tokyo, past
-match_confirmed_past = create_match(agents[9], test_agent, "confirmed", 84.5, :confirmed_luna_alex, :confirmed_luna_alex)
+match_confirmed_past = create_match(agents[9], test_agent, "confirmed", 84.5, :confirmed_luna_alex, :confirmed_luna_alex, breakdown: BD_LUNA_ALEX)
 
 # Match 6: declined (test user → James) — lifestyle/goal mismatch
-match_declined = create_match(test_agent, agents[4], "declined", 38.0, :declined_alex_james, :declined_alex_james)
+match_declined = create_match(test_agent, agents[4], "declined", 38.0, :declined_alex_james, :declined_alex_james, breakdown: BD_ALEX_JAMES)
 
 # Match 7: date_proposed (Aisha → test user) — Sakana-ya Uoharu, user declined
-match_user_declined_date = create_match(agents[11], test_agent, "date_proposed", 76.0, :proposed_aisha_alex, :proposed_aisha_alex)
+match_user_declined_date = create_match(agents[11], test_agent, "date_proposed", 76.0, :proposed_aisha_alex, :proposed_aisha_alex, breakdown: BD_AISHA_ALEX)
 
 # Extra matches between other users (background activity)
 bg_screening_1  = create_match(agents[2], agents[3],  "screening",     0.0,  :screening,    :screening)
@@ -1116,12 +1504,12 @@ puts "\n✅ Seeding complete!"
 puts "   #{User.count} users (login: test@example.com / password)"
 puts "   #{UserPreference.count} user preferences"
 puts "   #{Agent.count} agents"
-puts "   #{Match.count} matches"
+puts "   #{Match.count} matches (#{Match.where.not(compatibility_breakdown: {}).count} with breakdown)"
 puts "   #{MatchTranscript.count} transcript history records"
 puts "   #{DateEvent.count} date events"
 puts "   #{Venue.count} venues"
 puts "   #{Block.count} blocks"
 puts ""
 puts "   📸 To add photos: place images in db/seed_photos/"
-puts "      Named 01.jpg..20.jpg or firstname_lastname.jpg"
+puts "      Named 01.jpg..100.jpg or firstname_lastname.jpg"
 puts "      Then run: rails db:seed"

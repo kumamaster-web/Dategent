@@ -258,6 +258,7 @@ namespace :pipeline do
       status: "screening",
       compatibility_score: nil,
       compatibility_summary: nil,
+      compatibility_breakdown: {},
       chat_transcript: nil,
       updated_at: Time.current
     )
@@ -270,6 +271,13 @@ namespace :pipeline do
       names = "#{m.initiator_agent.user.first_name} ↔ #{m.receiver_agent.user.first_name}"
       puts "     #{names}: screening (score: nil)"
     end
+
+    # Clear all LLM artifacts (Chats aren't linked to specific matches)
+    puts "\n  🤖 Clearing LLM artifacts..."
+    tc = ToolCall.delete_all
+    msg = Message.delete_all
+    ch = Chat.delete_all
+    puts "  🗑️  #{ch} chats, #{msg} messages, #{tc} tool calls deleted"
 
     puts "\n  Next: rails pipeline:run"
   end
@@ -304,6 +312,14 @@ namespace :pipeline do
     puts "  🗑️  #{matches_deleted} matches deleted"
     puts "  🗑️  #{transcripts_deleted} transcript history records deleted"
     puts "  🗑️  #{date_events_deleted} date events deleted"
+
+    # Clear all LLM artifacts
+    puts "\n  🤖 Clearing LLM artifacts..."
+    tc = ToolCall.delete_all
+    msg = Message.delete_all
+    ch = Chat.delete_all
+    puts "  🗑️  #{ch} chats, #{msg} messages, #{tc} tool calls deleted"
+
     puts "\n  CandidateFinder will now discover all eligible users again."
     puts "  Next: rails pipeline:run"
   end
@@ -331,6 +347,13 @@ namespace :pipeline do
     puts "  🗑️  #{m} matches deleted"
     puts "  🗑️  #{mt} transcript history records deleted"
     puts "  🗑️  #{de} date events deleted"
+
+    # Clear all LLM artifacts
+    puts "\n  🤖 Clearing LLM artifacts..."
+    tc = ToolCall.delete_all
+    msg = Message.delete_all
+    ch = Chat.delete_all
+    puts "  🗑️  #{ch} chats, #{msg} messages, #{tc} tool calls deleted"
 
     puts "\n  Re-seeding..."
     Rake::Task["db:seed"].invoke
