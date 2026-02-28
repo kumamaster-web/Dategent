@@ -44,5 +44,10 @@ Rails.application.routes.draw do
     root "dashboard#show", as: :authenticated_root
   end
 
+  # Review
+  resources :users do
+    resources :reviews, only: [:create ]
+  end
+
   root to: redirect("/users/sign_in")
 end
