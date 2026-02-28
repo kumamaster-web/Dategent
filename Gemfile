@@ -27,7 +27,11 @@ gem "stimulus-rails"
 gem "jbuilder"
 
 # Use Redis adapter to run Action Cable in production
-# gem "redis", ">= 4.0.1"
+gem "redis", ">= 4.0.1"
+
+# Background job processing
+gem "sidekiq", "~> 7.3"
+gem "connection_pool", "~> 2.4"  # pin to 2.x — 3.0 breaks sidekiq 7.3 scheduler
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
@@ -78,3 +82,4 @@ gem 'simple_form'
 gem "tailwindcss-rails", "~> 4.4"
 
 gem "ruby_llm", "~> 1.12"
+gem "rspec-rails", "~> 7.1", groups: [:development, :test]

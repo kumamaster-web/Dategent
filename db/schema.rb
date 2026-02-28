@@ -51,6 +51,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
     t.datetime "updated_at", null: false
     t.integer "match_cap_per_week", default: 5
     t.string "personality_mode", default: "friendly"
+    t.string "name"
+    t.boolean "autopilot", default: false
     t.index ["user_id"], name: "index_agents_on_user_id"
   end
 
@@ -83,6 +85,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
     t.index ["venue_id"], name: "index_date_events_on_venue_id"
   end
 
+  create_table "match_transcripts", force: :cascade do |t|
+    t.bigint "match_id", null: false
+    t.string "stage", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_id", "stage"], name: "index_match_transcripts_on_match_id_and_stage", unique: true
+    t.index ["match_id"], name: "index_match_transcripts_on_match_id"
+  end
+
   create_table "matches", force: :cascade do |t|
     t.bigint "initiator_agent_id", null: false
     t.bigint "receiver_agent_id", null: false
@@ -95,7 +107,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
     t.index ["initiator_agent_id"], name: "index_matches_on_initiator_agent_id"
     t.index ["receiver_agent_id"], name: "index_matches_on_receiver_agent_id"
   end
-          
+
   create_table "matches_venues", force: :cascade do |t|
     t.bigint "match_id", null: false
     t.bigint "venue_id", null: false
@@ -243,6 +255,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
   add_foreign_key "chats", "models"
   add_foreign_key "date_events", "matches"
   add_foreign_key "date_events", "venues"
+  add_foreign_key "match_transcripts", "matches"
   add_foreign_key "matches", "agents", column: "initiator_agent_id"
   add_foreign_key "matches", "agents", column: "receiver_agent_id"
   add_foreign_key "matches_venues", "matches"

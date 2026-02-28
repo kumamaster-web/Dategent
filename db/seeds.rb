@@ -876,10 +876,10 @@ agents = AGENT_CONFIGS.map do |idx, personality, cap, autopilot, suffix|
   user = users[idx]
   agent = Agent.find_or_initialize_by(user: user)
   agent.assign_attributes(
-    # name: "#{user.first_name}'s #{suffix}",
+    name: "#{user.first_name}'s #{suffix}",
     personality_mode: personality,
     match_cap_per_week: cap,
-    # autopilot: autopilot,
+    autopilot: autopilot,
     status: "active"
   )
   agent.save!
@@ -918,17 +918,17 @@ end
 
 # Helper to create transcript history for a match
 # stages_data: array of [stage, transcript_key] pairs in chronological order
-# def create_transcript_history(match, stages_data)
-#   stages_data.each_with_index do |(stage, transcript_key), idx|
-#     mt = MatchTranscript.find_or_initialize_by(match: match, stage: stage)
-#     mt.update!(
-#       content: AGENT_TRANSCRIPTS[transcript_key],
-#       # Stagger timestamps so chronological order is clear
-#       created_at: match.created_at + (idx * 2).hours,
-#       updated_at: match.created_at + (idx * 2).hours
-#     )
-#   end
-# end
+def create_transcript_history(match, stages_data)
+  stages_data.each_with_index do |(stage, transcript_key), idx|
+    mt = MatchTranscript.find_or_initialize_by(match: match, stage: stage)
+    mt.update!(
+      content: AGENT_TRANSCRIPTS[transcript_key],
+      # Stagger timestamps so chronological order is clear
+      created_at: match.created_at + (idx * 2).hours,
+      updated_at: match.created_at + (idx * 2).hours
+    )
+  end
+end
 
 # Match 1: screening (test user initiated → Sarah)
 match_screening = create_match(test_agent, agents[1], "screening", 0.0, :screening, :screening)
@@ -963,60 +963,60 @@ bg_screening_2  = create_match(agents[18], agents[19], "screening",     0.0,  :s
 # --- Transcript History (stage-by-stage agent conversation records) ---
 puts "\n📜 Creating transcript history..."
 
-# # Match 1: Alex → Sarah (screening) — 1 stage
-# create_transcript_history(match_screening, [
-#   ["screening", :screening]
-# ])
+# Match 1: Alex → Sarah (screening) — 1 stage
+create_transcript_history(match_screening, [
+  ["screening", :screening]
+])
 
-# # Match 2: Marcus → Alex (evaluating) — 2 stages
-# create_transcript_history(match_evaluating, [
-#   ["screening", :screening_marcus_alex],
-#   ["evaluating", :evaluating_marcus_alex]
-# ])
+# Match 2: Marcus → Alex (evaluating) — 2 stages
+create_transcript_history(match_evaluating, [
+  ["screening", :screening_marcus_alex],
+  ["evaluating", :evaluating_marcus_alex]
+])
 
-# # Match 3: Alex → Yuki (date_proposed) — 3 stages
-# create_transcript_history(match_proposed, [
-#   ["screening", :screening_alex_yuki],
-#   ["evaluating", :evaluating_alex_yuki],
-#   ["date_proposed", :proposed_alex_yuki]
-# ])
+# Match 3: Alex → Yuki (date_proposed) — 3 stages
+create_transcript_history(match_proposed, [
+  ["screening", :screening_alex_yuki],
+  ["evaluating", :evaluating_alex_yuki],
+  ["date_proposed", :proposed_alex_yuki]
+])
 
-# # Match 4: Alex → Priya (confirmed) — 4 stages
-# create_transcript_history(match_confirmed_future, [
-#   ["screening", :screening_alex_priya],
-#   ["evaluating", :evaluating_alex_priya],
-#   ["date_proposed", :proposed_alex_priya],
-#   ["confirmed", :confirmed_alex_priya]
-# ])
+# Match 4: Alex → Priya (confirmed) — 4 stages
+create_transcript_history(match_confirmed_future, [
+  ["screening", :screening_alex_priya],
+  ["evaluating", :evaluating_alex_priya],
+  ["date_proposed", :proposed_alex_priya],
+  ["confirmed", :confirmed_alex_priya]
+])
 
-# # Match 5: Luna → Alex (confirmed) — 4 stages
-# create_transcript_history(match_confirmed_past, [
-#   ["screening", :screening_luna_alex],
-#   ["evaluating", :evaluating_luna_alex],
-#   ["date_proposed", :proposed_luna_alex],
-#   ["confirmed", :confirmed_luna_alex]
-# ])
+# Match 5: Luna → Alex (confirmed) — 4 stages
+create_transcript_history(match_confirmed_past, [
+  ["screening", :screening_luna_alex],
+  ["evaluating", :evaluating_luna_alex],
+  ["date_proposed", :proposed_luna_alex],
+  ["confirmed", :confirmed_luna_alex]
+])
 
-# # Match 6: Alex → James (declined at screening) — 1 stage
-# create_transcript_history(match_declined, [
-#   ["declined", :declined_alex_james]
-# ])
+# Match 6: Alex → James (declined at screening) — 1 stage
+create_transcript_history(match_declined, [
+  ["declined", :declined_alex_james]
+])
 
-# # Match 7: Aisha → Alex (date_proposed) — 3 stages
-# create_transcript_history(match_user_declined_date, [
-#   ["screening", :screening_aisha_alex],
-#   ["evaluating", :evaluating_aisha_alex],
-#   ["date_proposed", :proposed_aisha_alex]
-# ])
+# Match 7: Aisha → Alex (date_proposed) — 3 stages
+create_transcript_history(match_user_declined_date, [
+  ["screening", :screening_aisha_alex],
+  ["evaluating", :evaluating_aisha_alex],
+  ["date_proposed", :proposed_aisha_alex]
+])
 
-# # Background match transcript histories (generic stages)
-# create_transcript_history(bg_screening_1, [["screening", :screening]])
-# create_transcript_history(bg_evaluating_1, [["screening", :screening], ["evaluating", :evaluating]])
-# create_transcript_history(bg_confirmed, [["screening", :screening], ["evaluating", :evaluating], ["date_proposed", :date_proposed], ["confirmed", :confirmed]])
-# create_transcript_history(bg_proposed, [["screening", :screening], ["evaluating", :evaluating], ["date_proposed", :date_proposed]])
-# create_transcript_history(bg_evaluating_2, [["screening", :screening], ["evaluating", :evaluating]])
-# create_transcript_history(bg_declined, [["screening", :screening], ["declined", :declined]])
-# create_transcript_history(bg_screening_2, [["screening", :screening]])
+# Background match transcript histories (generic stages)
+create_transcript_history(bg_screening_1, [["screening", :screening]])
+create_transcript_history(bg_evaluating_1, [["screening", :screening], ["evaluating", :evaluating]])
+create_transcript_history(bg_confirmed, [["screening", :screening], ["evaluating", :evaluating], ["date_proposed", :date_proposed], ["confirmed", :confirmed]])
+create_transcript_history(bg_proposed, [["screening", :screening], ["evaluating", :evaluating], ["date_proposed", :date_proposed]])
+create_transcript_history(bg_evaluating_2, [["screening", :screening], ["evaluating", :evaluating]])
+create_transcript_history(bg_declined, [["screening", :screening], ["declined", :declined]])
+create_transcript_history(bg_screening_2, [["screening", :screening]])
 
 # --- Date Events ---
 puts "\n📅 Creating date events..."
@@ -1117,7 +1117,7 @@ puts "   #{User.count} users (login: test@example.com / password)"
 puts "   #{UserPreference.count} user preferences"
 puts "   #{Agent.count} agents"
 puts "   #{Match.count} matches"
-# puts "   #{MatchTranscript.count} transcript history records"
+puts "   #{MatchTranscript.count} transcript history records"
 puts "   #{DateEvent.count} date events"
 puts "   #{Venue.count} venues"
 puts "   #{Block.count} blocks"
