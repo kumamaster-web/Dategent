@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_28_072831) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -40,6 +40,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "agent_conversations", force: :cascade do |t|
+    t.bigint "match_candidate_id", null: false
+    t.jsonb "messages", default: []
+    t.string "outcome"
+    t.integer "rounds", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["match_candidate_id"], name: "index_agent_conversations_on_match_candidate_id"
   end
 
   create_table "agents", force: :cascade do |t|
@@ -83,6 +93,31 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
     t.datetime "updated_at", null: false
     t.index ["match_id"], name: "index_date_events_on_match_id"
     t.index ["venue_id"], name: "index_date_events_on_venue_id"
+  end
+
+  create_table "match_candidates", force: :cascade do |t|
+    t.bigint "match_request_id", null: false
+    t.bigint "candidate_id", null: false
+    t.float "screening_score"
+    t.text "screening_reasoning"
+    t.jsonb "negotiation_log", default: []
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["candidate_id"], name: "index_match_candidates_on_candidate_id"
+    t.index ["match_request_id", "candidate_id"], name: "index_match_candidates_on_match_request_id_and_candidate_id", unique: true
+    t.index ["match_request_id"], name: "index_match_candidates_on_match_request_id"
+    t.index ["status"], name: "index_match_candidates_on_status"
+  end
+
+  create_table "match_requests", force: :cascade do |t|
+    t.bigint "requester_id", null: false
+    t.string "status", default: "pending", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["requester_id"], name: "index_match_requests_on_requester_id"
+    t.index ["status"], name: "index_match_requests_on_status"
   end
 
   create_table "match_transcripts", force: :cascade do |t|
@@ -170,6 +205,17 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
     t.index ["provider"], name: "index_models_on_provider"
   end
 
+  create_table "reviews", force: :cascade do |t|
+    t.integer "rating"
+    t.string "content"
+    t.bigint "reviewer_id", null: false
+    t.bigint "reviewee_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reviewee_id"], name: "index_reviews_on_reviewee_id"
+    t.index ["reviewer_id"], name: "index_reviews_on_reviewer_id"
+  end
+
   create_table "tool_calls", force: :cascade do |t|
     t.string "tool_call_id", null: false
     t.string "name", null: false
@@ -206,6 +252,20 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
     t.index ["user_id"], name: "index_user_preferences_on_user_id"
   end
 
+  create_table "user_profiles", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.jsonb "preferences", default: {}
+    t.text "screening_prompt"
+    t.string "negotiation_style", default: "balanced"
+    t.text "interests"
+    t.string "location"
+    t.integer "age_min"
+    t.integer "age_max"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_user_profiles_on_user_id", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -227,8 +287,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
     t.string "education"
     t.string "occupation"
     t.string "mbti"
-    t.string "gender"
     t.text "bio"
+    t.string "gender"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -249,12 +309,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "agent_conversations", "match_candidates"
   add_foreign_key "agents", "users"
   add_foreign_key "blocks", "users", column: "blocked_user_id"
   add_foreign_key "blocks", "users", column: "blocker_user_id"
   add_foreign_key "chats", "models"
   add_foreign_key "date_events", "matches"
   add_foreign_key "date_events", "venues"
+  add_foreign_key "match_candidates", "match_requests"
+  add_foreign_key "match_candidates", "users", column: "candidate_id"
+  add_foreign_key "match_requests", "users", column: "requester_id"
   add_foreign_key "match_transcripts", "matches"
   add_foreign_key "matches", "agents", column: "initiator_agent_id"
   add_foreign_key "matches", "agents", column: "receiver_agent_id"
@@ -265,6 +329,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_002731) do
   add_foreign_key "messages", "chats"
   add_foreign_key "messages", "models"
   add_foreign_key "messages", "tool_calls"
+  add_foreign_key "reviews", "users", column: "reviewee_id"
+  add_foreign_key "reviews", "users", column: "reviewer_id"
   add_foreign_key "tool_calls", "messages"
   add_foreign_key "user_preferences", "users"
+  add_foreign_key "user_profiles", "users"
 end
