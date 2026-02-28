@@ -118,11 +118,11 @@ GEM
       railties (>= 7.0)
       responders
       warden (~> 1.2.3)
+    diff-lcs (1.6.2)
     dotenv (3.2.0)
     dotenv-rails (3.2.0)
       dotenv (= 3.2.0)
       railties (>= 6.1)
-    diff-lcs (1.6.2)
     drb (2.2.3)
     erb (6.0.1)
     erubi (1.13.1)
@@ -263,7 +263,6 @@ GEM
       actionpack (>= 7.0)
       railties (>= 7.0)
     rexml (3.4.4)
-    ruby_llm (1.12.1)
     rspec-core (3.13.6)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.5)
@@ -281,7 +280,7 @@ GEM
       rspec-mocks (~> 3.13)
       rspec-support (~> 3.13)
     rspec-support (3.13.7)
-    ruby_llm (1.12.0)
+    ruby_llm (1.12.1)
       base64
       event_stream_parser (~> 1)
       faraday (>= 2.0)
@@ -370,10 +369,9 @@ DEPENDENCIES
   pg (~> 1.1)
   puma (>= 5.0)
   rails (~> 7.1.6)
-  ruby_llm (~> 1.12)
   redis (>= 4.0.1)
   rspec-rails (~> 7.1)
-  ruby_llm (~> 1.11)
+  ruby_llm (~> 1.12)
   selenium-webdriver
   sidekiq (~> 7.3)
   simple_form
