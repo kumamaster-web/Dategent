@@ -258,6 +258,7 @@ namespace :pipeline do
       status: "screening",
       compatibility_score: nil,
       compatibility_summary: nil,
+      compatibility_breakdown: {},
       chat_transcript: nil,
       updated_at: Time.current
     )
