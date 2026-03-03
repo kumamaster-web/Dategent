@@ -52,7 +52,7 @@
       <% end %>
 <div data-controller="dialog" data-action="click->dialog#backdropClose">
           <dialog data-dialog-target="dialog">
-            <%= simple_form_for [@user, @review] do |f| %>
+            <%= simple_form_for [@reviewee, @review] do |f| %>
               <%= f.input :rating %>
               <%= f.input :content %>
               <%= f.submit "Submit review"%>
