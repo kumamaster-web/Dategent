@@ -51,15 +51,85 @@
         </div>
       <% end %>
 
-      <%# Compatibility Summary %>
-      <% if @match.compatibility_summary.present? %>
-        <div class="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
-          <p class="text-sm font-medium text-indigo-900 dark:text-indigo-200 mb-1">Compatibility Summary</p>
-          <p class="text-sm text-indigo-700 dark:text-indigo-300"><%= @match.compatibility_summary %></p>
-        </div>
-      <% end %>
     </div>
   </div>
+
+  <%# ── Compatibility Insights (visual) ── %>
+  <% if @match.compatibility_summary.present? %>
+    <%
+      # Parse the summary: split on • to get intro + bullet items
+      raw_parts = @match.compatibility_summary.split("•").map(&:strip).reject(&:blank?)
+      intro_text = nil
+      closing_text = nil
+      bullet_items = []
+
+      if raw_parts.any?
+        # First part (before any •) is the intro
+        intro_text = raw_parts.shift if raw_parts.first && !raw_parts.first.include?(":")
+
+        raw_parts.each do |part|
+          if part.include?(":")
+            label, desc = part.split(":", 2)
+            bullet_items << { label: label.strip, desc: desc.strip }
+          else
+            # No colon = closing statement
+            closing_text = part
+          end
+        end
+      end
+
+      # Emoji mapping by keyword
+      emoji_map = {
+        "interest" => "💫", "lifestyle" => "🌿", "schedule" => "📅",
+        "personality" => "🧠", "friction" => "⚡", "challenge" => "⚡",
+        "budget" => "💰", "value" => "💎", "communication" => "💬",
+        "goal" => "🎯", "location" => "📍"
+      }
+    %>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Compatibility Insights</h2>
+      </div>
+      <div class="px-6 py-5">
+        <% if bullet_items.any? %>
+          <%# Intro line %>
+          <% if intro_text.present? %>
+            <p class="text-sm italic text-gray-500 dark:text-gray-400 mb-5"><%= intro_text %></p>
+          <% end %>
+
+          <%# Parsed visual sections %>
+          <div class="space-y-0 divide-y divide-gray-100 dark:divide-gray-700/50">
+            <% bullet_items.each do |item| %>
+              <%
+                label_lower = item[:label].downcase
+                emoji = emoji_map.find { |k, _| label_lower.include?(k) }&.last || "✦"
+              %>
+              <div class="py-4 first:pt-0 last:pb-0">
+                <div class="flex items-start gap-3">
+                  <span class="text-lg leading-none mt-0.5"><%= emoji %></span>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-gray-900 dark:text-gray-100"><%= item[:label] %></p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5"><%= item[:desc] %></p>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <%# Closing line %>
+          <% if closing_text.present? %>
+            <div class="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700/50">
+              <p class="text-sm italic text-gray-500 dark:text-gray-400"><%= closing_text %></p>
+            </div>
+          <% end %>
+        <% else %>
+          <%# Fallback: no bullets found, render as plain text %>
+          <p class="text-sm text-gray-600 dark:text-gray-300"><%= @match.compatibility_summary %></p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
   <%# Date Events %>
   <% if @date_events.any? %>
