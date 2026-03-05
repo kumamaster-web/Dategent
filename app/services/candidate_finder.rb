@@ -41,7 +41,7 @@ class CandidateFinder
   def filter_gender(scope)
     return scope if @pref&.preferred_gender.blank?
 
-    scope.where(gender: @pref.preferred_gender)
+    scope.where("LOWER(gender) = ?", @pref.preferred_gender.downcase)
   end
 
   def filter_age(scope)
