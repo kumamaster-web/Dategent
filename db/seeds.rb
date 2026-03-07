@@ -1414,41 +1414,40 @@ puts "\n📅 Creating date events..."
 de_proposed = DateEvent.find_or_initialize_by(match: match_proposed)
 de_proposed.assign_attributes(
   venue: venues[0],  # Tsuta Ramen (dinner, tier 2, Sugamo)
-  scheduled_time: 3.days.from_now.change(hour: 12, min: 0),
+  scheduled_time: 14.days.from_now.change(hour: 12, min: 0),
   booking_status: "proposed"
 )
 de_proposed.save!
-puts "  Proposed: #{de_proposed.venue.name} on #{3.days.from_now.strftime('%b %d')}"
+puts "  Proposed: #{de_proposed.venue.name} on #{14.days.from_now.strftime('%b %d')}"
 
 # DateEvent for match_confirmed_future (Alex → Priya) — Yoyogi Park
 # Transcript discusses outdoor walk + nearby café, tier 1 fits Priya's $$ budget
 de_confirmed_future = DateEvent.find_or_initialize_by(match: match_confirmed_future)
 de_confirmed_future.assign_attributes(
   venue: venues[2],  # Yoyogi Park (outdoor, tier 1, Shibuya)
-  scheduled_time: 5.days.from_now.change(hour: 11, min: 0),
+  scheduled_time: 16.days.from_now.change(hour: 11, min: 0),
   booking_status: "accepted"
 )
 de_confirmed_future.save!
-puts "  Confirmed (upcoming): #{de_confirmed_future.venue.name} on #{5.days.from_now.strftime('%b %d')}"
+puts "  Confirmed (upcoming): #{de_confirmed_future.venue.name} on #{16.days.from_now.strftime('%b %d')}"
 
 # DateEvent for match_confirmed_past (Luna → Alex) — Fuglen Tokyo
 # Transcript discusses cozy coffee spot in Tomigaya, tier 2 fits Luna's $$ budget
 de_confirmed_past = DateEvent.find_or_initialize_by(match: match_confirmed_past)
 de_confirmed_past.assign_attributes(
   venue: venues[6],  # Fuglen Tokyo (coffee, tier 2, Tomigaya/Shibuya)
-  scheduled_time: 10.days.ago.change(hour: 14, min: 0),
-  booking_status: "accepted",
-  rating_score: 4
+  scheduled_time: 18.days.from_now.change(hour: 14, min: 0),
+  booking_status: "accepted"
 )
 de_confirmed_past.save!
-puts "  Confirmed (past): #{de_confirmed_past.venue.name} on #{10.days.ago.strftime('%b %d')}"
+puts "  Confirmed (upcoming): #{de_confirmed_past.venue.name} on #{18.days.from_now.strftime('%b %d')}"
 
 # DateEvent for match_user_declined_date (Aisha → Alex) — Sakana-ya Uoharu
 # Transcript discusses upscale Japanese dinner in Roppongi, tier 3 fits both $$$
 de_user_declined = DateEvent.find_or_initialize_by(match: match_user_declined_date)
 de_user_declined.assign_attributes(
   venue: venues[5],  # Sakana-ya Uoharu (dinner, tier 3, Roppongi)
-  scheduled_time: 2.days.from_now.change(hour: 19, min: 0),
+  scheduled_time: 12.days.from_now.change(hour: 19, min: 0),
   booking_status: "declined"
 )
 de_user_declined.save!
@@ -1462,7 +1461,7 @@ if bg_match
   de_background = DateEvent.find_or_initialize_by(match: bg_match)
   de_background.assign_attributes(
     venue: venues[5],  # Sakana-ya Uoharu (dinner, tier 3, Roppongi)
-    scheduled_time: 7.days.from_now.change(hour: 19, min: 0),
+    scheduled_time: 18.days.from_now.change(hour: 19, min: 0),
     booking_status: "accepted"
   )
   de_background.save!
@@ -1479,7 +1478,7 @@ if bg_proposed_match
   de_bg_proposed = DateEvent.find_or_initialize_by(match: bg_proposed_match)
   de_bg_proposed.assign_attributes(
     venue: venues[4],  # teamLab Borderless (activity, tier 3, Azabudai)
-    scheduled_time: 4.days.from_now.change(hour: 14, min: 0),
+    scheduled_time: 15.days.from_now.change(hour: 14, min: 0),
     booking_status: "proposed"
   )
   de_bg_proposed.save!
