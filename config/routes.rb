@@ -23,7 +23,7 @@ Rails.application.routes.draw do
   resource :agent, only: [:show, :edit, :update]
 
   # Matches
-  resources :matches, only: [:index, :show] do
+  resources :matches, only: [:index, :show, :update] do
     resources :matchesvenues, only: [:create, :index] # List of Recommened Venues aka MathchesVenue because it connects them
   end
 

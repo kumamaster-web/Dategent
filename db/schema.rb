@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_28_064918) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_05_115856) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -104,9 +104,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_064918) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "compatibility_summary"
+    t.bigint "selected_venue_id"
     t.jsonb "compatibility_breakdown", default: {}
     t.index ["initiator_agent_id"], name: "index_matches_on_initiator_agent_id"
     t.index ["receiver_agent_id"], name: "index_matches_on_receiver_agent_id"
+    t.index ["selected_venue_id"], name: "index_matches_on_selected_venue_id"
   end
 
   create_table "matches_venues", force: :cascade do |t|
@@ -259,6 +261,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_064918) do
   add_foreign_key "match_transcripts", "matches"
   add_foreign_key "matches", "agents", column: "initiator_agent_id"
   add_foreign_key "matches", "agents", column: "receiver_agent_id"
+  add_foreign_key "matches", "venues", column: "selected_venue_id"
   add_foreign_key "matches_venues", "matches"
   add_foreign_key "matches_venues", "venues"
   add_foreign_key "meetings", "date_events"

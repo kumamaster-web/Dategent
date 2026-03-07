@@ -25,9 +25,9 @@ class NegotiationJob < ApplicationJob
     @recv_ctx = AgentContextBuilder.new(recv_user)
 
     @schedule_overlap = ScheduleOverlapService.new(init_user, recv_user).call
-    @venue_options = VenueFinderService.new(init_user, recv_user).call
+    @venue_options = VenueFinderService.new(init_user, recv_user, @match).call
 
-    Rails.logger.info "[NegotiationJob] Schedule overlaps: #{@schedule_overlap.size} slots | Venue options: #{@venue_options.size}"
+    # Rails.logger.info "[NegotiationJob] Schedule overlaps: #{@schedule_overlap.size} slots | Venue options: #{@venue_options.size}"
 
     # Two separate RubyLLM Chats — one per agent, fully persisted
     agent_a_chat = Chat.create!
@@ -91,13 +91,12 @@ class NegotiationJob < ApplicationJob
   end
 
   def negotiation_rules
-    venue_list = @venue_options.map { |v| "#{v.name} (#{v.venue_type}, tier #{v.price_tier})" }.join("; ")
+    # venue_list = @venue_options.map { |v| "#{v.name} (#{v.venue_type}, tier #{v.price_tier})" }.join("; ")
 
     <<~RULES
       NEGOTIATION RULES:
       - Discuss compatibility, shared interests, and date logistics
       - Schedule overlap data: #{@schedule_overlap.to_json}
-      - Available venues: #{venue_list}
       - When you reach agreement on a venue and time, respond with EXACTLY:
         DECISION: PROPOSE_DATE | venue: <name> | time: <ISO 8601 datetime>
       - If you determine incompatibility, respond with EXACTLY:
@@ -157,19 +156,20 @@ class NegotiationJob < ApplicationJob
     formatted = format_transcript(transcript)
 
     if decision[:action] == :propose
-      venue = find_venue(decision[:venue_name])
+      # venue = find_venue(decision[:venue_name])
       scheduled_time = parse_time(decision[:time]) || 5.days.from_now.change(hour: 19)
 
       @match.update!(status: "date_proposed", chat_transcript: formatted)
+      # belongs to the stages of evalulation using the AI
 
       # Persist stage transcripts for history (evaluating + date_proposed)
       @match.record_transcript!("evaluating", formatted)
       @match.record_transcript!("date_proposed", formatted)
 
       DateEvent.find_or_create_by!(match: @match) do |de|
-        de.venue = venue
+        # de.venue = venue
         de.scheduled_time = scheduled_time
-        de.booking_status = "proposed"
+        de.booking_status = "initiated"
       end
 
       # TODO: Turbo Stream broadcast to both users
@@ -185,11 +185,11 @@ class NegotiationJob < ApplicationJob
     end
   end
 
-  def find_venue(venue_name)
-    return @venue_options.first if venue_name.blank?
+  # def find_venue(venue_name)
+  #   return @venue_options.first if venue_name.blank?
 
-    Venue.find_by("name ILIKE ?", "%#{venue_name}%") || @venue_options.first
-  end
+  #   Venue.find_by("name ILIKE ?", "%#{venue_name}%") || @venue_options.first
+  # end
 
   def parse_time(time_string)
     return nil if time_string.blank?
