@@ -200,20 +200,32 @@
                       <% their_agent = (my_agent == @match.initiator_agent) ? @match.receiver_agent : @match.initiator_agent %>
 
                       <div class="px-4 py-4 space-y-3 max-h-96 overflow-y-auto">
-                        <% transcript.content.split("\n").reject(&:blank?).each do |line| %>
-                          <% if line.match?(/\A\s*\[(.+?)(?:\s*→\s*(.+?))?\]:?\s*(.+)\z/) %>
-                            <% match_data = line.match(/\A\s*\[(.+?)(?:\s*→\s*(.+?))?\]:?\s*(.+)\z/) %>
-                            <% speaker = match_data[1].strip %>
-                            <% message = match_data[3].strip %>
-                            <% is_mine = my_agent&.name && speaker.include?(my_agent.name.split("'s").first) %>
+                        <%# Pre-process: group multi-line messages by speaker %>
+                        <% speaker_regex = /\A\s*\[(.+?)(?:\s*→\s*(.+?))?\]:?\s*(.*)\z/ %>
+                        <% grouped_messages = [] %>
+                        <% transcript.content.split("\n").each do |line| %>
+                          <% if line.match?(speaker_regex) %>
+                            <% md = line.match(speaker_regex) %>
+                            <% grouped_messages << { speaker: md[1].strip, lines: [md[3].strip].reject(&:blank?) } %>
+                          <% elsif line.strip.present? && grouped_messages.any? && grouped_messages.last[:speaker].present? %>
+                            <% grouped_messages.last[:lines] << line.strip %>
+                          <% elsif line.strip.present? %>
+                            <% grouped_messages << { speaker: nil, lines: [line.strip] } %>
+                          <% end %>
+                        <% end %>
 
+                        <% grouped_messages.each do |msg| %>
+                          <% if msg[:speaker].present? %>
+                            <% is_mine = my_agent&.name && msg[:speaker].include?(my_agent.name.split("'s").first) %>
                             <% if is_mine %>
                               <%# Current user's agent — right-aligned indigo bubble %>
                               <div class="flex justify-end">
                                 <div class="max-w-[85%] sm:max-w-[75%]">
                                   <p class="text-[11px] font-bold text-indigo-400 dark:text-indigo-300 mb-0.5 text-right"><%= my_agent&.name || "Your Agent" %></p>
                                   <div class="rounded-2xl rounded-br-md px-4 py-2.5 bg-indigo-500 dark:bg-indigo-600 shadow-sm">
-                                    <p class="text-sm text-white leading-relaxed"><%= message %></p>
+                                    <% msg[:lines].each_with_index do |para, i| %>
+                                      <p class="text-sm text-white leading-relaxed <%= 'mt-2' if i > 0 %>"><%= para %></p>
+                                    <% end %>
                                   </div>
                                 </div>
                               </div>
@@ -223,16 +235,20 @@
                                 <div class="max-w-[85%] sm:max-w-[75%]">
                                   <p class="text-[11px] font-bold text-pink-400 dark:text-pink-300 mb-0.5"><%= their_agent&.name || "Their Agent" %></p>
                                   <div class="rounded-2xl rounded-bl-md px-4 py-2.5 bg-pink-500 dark:bg-pink-600 shadow-sm">
-                                    <p class="text-sm text-white leading-relaxed"><%= message %></p>
+                                    <% msg[:lines].each_with_index do |para, i| %>
+                                      <p class="text-sm text-white leading-relaxed <%= 'mt-2' if i > 0 %>"><%= para %></p>
+                                    <% end %>
                                   </div>
                                 </div>
                               </div>
                             <% end %>
                           <% else %>
                             <%# System/non-dialogue line — centered muted text %>
-                            <div class="flex justify-center">
-                              <p class="text-xs text-gray-400 dark:text-gray-500 italic px-3 py-1"><%= line.strip %></p>
-                            </div>
+                            <% msg[:lines].each do |sys_line| %>
+                              <div class="flex justify-center">
+                                <p class="text-xs text-gray-400 dark:text-gray-500 italic px-3 py-1"><%= sys_line %></p>
+                              </div>
+                            <% end %>
                           <% end %>
                         <% end %>
                       </div>
