@@ -62,34 +62,77 @@
       <% if @upcoming_dates.any? %>
         <% @upcoming_dates.each do |date_event| %>
           <% other_user = match_other_user(date_event.match) %>
-          <div class="px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center flex-shrink-0">
-                <span class="text-sm font-bold text-pink-600 dark:text-pink-400"><%= other_user.first_name[0] %></span>
-              </div>
-              <div>
-                <p class="text-sm font-medium text-gray-900 dark:text-gray-100"><%= other_user.first_name %></p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                  <%= date_event.venue&.name || "Venue TBD" %>
-                  <% if date_event.scheduled_time %>
-                    &middot; <%= date_event.scheduled_time.strftime("%b %d, %I:%M %p") %>
+          <% is_past = date_event.scheduled_time && date_event.scheduled_time < Time.current %>
+          <div class="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+            <%= link_to match_path(date_event.match), class: "block" do %>
+              <div class="flex items-center gap-3">
+                <%# Photo %>
+                <div class="flex-shrink-0">
+                  <% if other_user.photo.attached? && other_user.photo.blob&.persisted? %>
+                    <div class="w-11 h-11 rounded-full overflow-hidden shadow-sm">
+                      <%= image_tag other_user.photo, class: "w-full h-full object-cover" %>
+                    </div>
+                  <% else %>
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center shadow-sm">
+                      <span class="text-sm font-bold text-white"><%= other_user.first_name[0] %></span>
+                    </div>
                   <% end %>
-                </p>
+                </div>
+
+                <%# Details %>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-2">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">Date with <%= other_user.first_name %></h3>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium flex-shrink-0 <%= booking_status_badge(date_event.booking_status) %>">
+                      <%= date_event.booking_status&.titleize || "Pending" %>
+                    </span>
+                  </div>
+
+                  <%# Venue info %>
+                  <% if date_event.venue %>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                      <p class="text-xs text-gray-600 dark:text-gray-300 truncate"><%= date_event.venue.name %></p>
+                      <% if date_event.venue.venue_type.present? %>
+                        <span class="text-[11px] text-gray-400 dark:text-gray-500">· <%= date_event.venue.venue_type.titleize %></span>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Venue TBD</p>
+                  <% end %>
+
+                  <%# Date & time %>
+                  <% if date_event.scheduled_time %>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      <p class="text-xs text-gray-500 dark:text-gray-400"><%= date_event.scheduled_time.strftime("%a, %b %d") %> at <%= date_event.scheduled_time.strftime("%I:%M %p") %></p>
+                      <% if is_past %>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400">Past</span>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <svg class="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      <p class="text-xs text-gray-400 dark:text-gray-500">Date TBD</p>
+                    </div>
+                  <% end %>
+                </div>
               </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= booking_status_badge(date_event.booking_status) %>">
-                <%= date_event.booking_status&.titleize || "Pending" %>
-              </span>
-              <% if date_event.booking_status == "proposed" %>
-                <%= link_to accept_date_event_path(date_event), method: :patch, data: { turbo_method: :patch }, class: "p-1.5 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 transition-colors" do %>
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <% end %>
+
+            <%# Accept / Decline actions — outside the link, full-width row %>
+            <% if date_event.booking_status == "proposed" %>
+              <div class="flex items-center gap-2 mt-3 ml-14">
+                <%= link_to accept_date_event_path(date_event), method: :patch, data: { turbo_method: :patch }, class: "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 transition-colors" do %>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  Accept
                 <% end %>
-                <%= link_to decline_date_event_path(date_event), method: :patch, data: { turbo_method: :patch }, class: "p-1.5 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 transition-colors" do %>
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <%= link_to decline_date_event_path(date_event), method: :patch, data: { turbo_method: :patch }, class: "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 transition-colors" do %>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  Decline
                 <% end %>
-              <% end %>
-            </div>
+              </div>
+            <% end %>
           </div>
         <% end %>
       <% else %>
@@ -141,9 +184,15 @@
               <% other_user = match_other_user(match) %>
               <%= link_to match_path(match), class: "block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-5 hover:shadow-md transition-shadow #{i == 0 ? '' : 'hidden'}", data: { match_tabs_target: "card" } do %>
                 <div class="flex items-start gap-4">
-                  <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <span class="text-lg font-bold text-white"><%= other_user.first_name[0] %></span>
-                  </div>
+                  <% if other_user.photo.attached? && other_user.photo.blob&.persisted? %>
+                    <div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
+                      <%= image_tag other_user.photo, class: "w-full h-full object-cover" %>
+                    </div>
+                  <% else %>
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+                      <span class="text-lg font-bold text-white"><%= other_user.first_name[0] %></span>
+                    </div>
+                  <% end %>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between gap-2">
                       <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 truncate"><%= other_user.first_name %></h3>
@@ -206,9 +255,15 @@
               <% other_user = match_other_user(match) %>
               <%= link_to match_path(match), class: "block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-5 hover:shadow-md transition-shadow #{i == 0 ? '' : 'hidden'}", data: { match_tabs_target: "card" } do %>
                 <div class="flex items-start gap-4">
-                  <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <span class="text-lg font-bold text-white"><%= other_user.first_name[0] %></span>
-                  </div>
+                  <% if other_user.photo.attached? && other_user.photo.blob&.persisted? %>
+                    <div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
+                      <%= image_tag other_user.photo, class: "w-full h-full object-cover" %>
+                    </div>
+                  <% else %>
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+                      <span class="text-lg font-bold text-white"><%= other_user.first_name[0] %></span>
+                    </div>
+                  <% end %>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between gap-2">
                       <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 truncate"><%= other_user.first_name %></h3>
@@ -270,9 +325,15 @@
               <% other_user = match_other_user(match) %>
               <%= link_to match_path(match), class: "block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-5 hover:shadow-md transition-shadow #{i == 0 ? '' : 'hidden'}", data: { match_tabs_target: "card" } do %>
                 <div class="flex items-start gap-4">
-                  <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <span class="text-lg font-bold text-white"><%= other_user.first_name[0] %></span>
-                  </div>
+                  <% if other_user.photo.attached? && other_user.photo.blob&.persisted? %>
+                    <div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
+                      <%= image_tag other_user.photo, class: "w-full h-full object-cover" %>
+                    </div>
+                  <% else %>
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+                      <span class="text-lg font-bold text-white"><%= other_user.first_name[0] %></span>
+                    </div>
+                  <% end %>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between gap-2">
                       <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 truncate"><%= other_user.first_name %></h3>

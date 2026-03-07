@@ -14,9 +14,15 @@
     <div class="h-24 bg-gradient-to-r from-indigo-500 to-pink-500"></div>
     <div class="px-6 pb-6">
       <div class="-mt-10 flex items-end gap-4">
-        <div class="w-20 h-20 rounded-xl border-4 border-white dark:border-gray-800 bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center shadow-lg flex-shrink-0">
-          <span class="text-2xl font-bold text-white"><%= other_user.first_name[0] %></span>
-        </div>
+        <% if other_user.photo.attached? && other_user.photo.blob&.persisted? %>
+          <div class="w-20 h-20 rounded-xl border-4 border-white dark:border-gray-800 overflow-hidden shadow-lg flex-shrink-0">
+            <%= image_tag other_user.photo, class: "w-full h-full object-cover" %>
+          </div>
+        <% else %>
+          <div class="w-20 h-20 rounded-xl border-4 border-white dark:border-gray-800 bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center shadow-lg flex-shrink-0">
+            <span class="text-2xl font-bold text-white"><%= other_user.first_name[0] %></span>
+          </div>
+        <% end %>
         <div class="pb-1">
           <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100"><%= other_user.first_name %></h1>
           <p class="text-sm text-gray-500 dark:text-gray-400">
@@ -183,32 +189,50 @@
                     </svg>
                   </button>
 
-                  <%# Collapsible content %>
+                  <%# Collapsible content — chat bubble layout %>
                   <div
                     data-transcript-accordion-target="panel"
                     class="<%= is_last ? '' : 'hidden' %>"
                   >
-                    <div class="px-4 pb-4 border-t border-gray-100 dark:border-gray-700">
-                      <div class="space-y-3 mt-3 max-h-80 overflow-y-auto">
+                    <div class="border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40">
+                      <%# Agent identity %>
+                      <% my_agent = current_user.agent %>
+                      <% their_agent = (my_agent == @match.initiator_agent) ? @match.receiver_agent : @match.initiator_agent %>
+
+                      <div class="px-4 py-4 space-y-3 max-h-96 overflow-y-auto">
                         <% transcript.content.split("\n").reject(&:blank?).each do |line| %>
                           <% if line.match?(/\A\s*\[(.+?)\s*→\s*(.+?)\]:?\s*(.+)\z/) %>
                             <% match_data = line.match(/\A\s*\[(.+?)\s*→\s*(.+?)\]:?\s*(.+)\z/) %>
                             <% speaker = match_data[1].strip %>
                             <% message = match_data[3].strip %>
-                            <% is_initiator = @match.initiator_agent&.name && speaker.include?(@match.initiator_agent.name.split("'s").first) %>
-                            <div class="flex gap-3 <%= is_initiator ? '' : 'flex-row-reverse' %>">
-                              <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 <%= is_initiator ? 'bg-indigo-100 dark:bg-indigo-900/30' : 'bg-pink-100 dark:bg-pink-900/30' %>">
-                                <svg class="w-3.5 h-3.5 <%= is_initiator ? 'text-indigo-600 dark:text-indigo-400' : 'text-pink-600 dark:text-pink-400' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                              </div>
-                              <div class="max-w-[80%]">
-                                <p class="text-[10px] font-medium mb-0.5 <%= is_initiator ? 'text-indigo-500 dark:text-indigo-400' : 'text-pink-500 dark:text-pink-400 text-right' %>"><%= speaker %></p>
-                                <div class="rounded-2xl px-3 py-2 <%= is_initiator ? 'bg-gray-100 dark:bg-gray-700' : 'bg-indigo-50 dark:bg-indigo-900/20' %>">
-                                  <p class="text-sm text-gray-900 dark:text-gray-100"><%= message %></p>
+                            <% is_mine = my_agent&.name && speaker.include?(my_agent.name.split("'s").first) %>
+
+                            <% if is_mine %>
+                              <%# Current user's agent — right-aligned indigo bubble %>
+                              <div class="flex justify-end">
+                                <div class="max-w-[85%] sm:max-w-[75%]">
+                                  <p class="text-[11px] font-bold text-indigo-400 dark:text-indigo-300 mb-0.5 text-right"><%= my_agent&.name || "Your Agent" %></p>
+                                  <div class="rounded-2xl rounded-br-md px-4 py-2.5 bg-indigo-500 dark:bg-indigo-600 shadow-sm">
+                                    <p class="text-sm text-white leading-relaxed"><%= message %></p>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            <% else %>
+                              <%# Other user's agent — left-aligned pink bubble %>
+                              <div class="flex justify-start">
+                                <div class="max-w-[85%] sm:max-w-[75%]">
+                                  <p class="text-[11px] font-bold text-pink-400 dark:text-pink-300 mb-0.5"><%= their_agent&.name || "Their Agent" %></p>
+                                  <div class="rounded-2xl rounded-bl-md px-4 py-2.5 bg-pink-500 dark:bg-pink-600 shadow-sm">
+                                    <p class="text-sm text-white leading-relaxed"><%= message %></p>
+                                  </div>
+                                </div>
+                              </div>
+                            <% end %>
                           <% else %>
-                            <div class="text-sm text-gray-700 dark:text-gray-300 px-2"><%= line.strip %></div>
+                            <%# System/non-dialogue line — centered muted text %>
+                            <div class="flex justify-center">
+                              <p class="text-xs text-gray-400 dark:text-gray-500 italic px-3 py-1"><%= line.strip %></p>
+                            </div>
                           <% end %>
                         <% end %>
                       </div>
@@ -221,16 +245,17 @@
         </div>
       <% elsif @match.chat_transcript.present? %>
         <%# Fallback: show legacy chat_transcript if no match_transcripts exist yet %>
-        <div class="space-y-4 max-h-96 overflow-y-auto">
+        <div class="bg-gray-50 dark:bg-gray-900/40 rounded-xl p-4 space-y-3 max-h-96 overflow-y-auto">
           <% begin %>
             <% messages = JSON.parse(@match.chat_transcript) %>
             <% messages.each do |msg| %>
-              <div class="flex gap-3 <%= msg['role'] == 'initiator' ? '' : 'flex-row-reverse' %>">
-                <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 <%= msg['role'] == 'initiator' ? 'bg-indigo-100 dark:bg-indigo-900/30' : 'bg-pink-100 dark:bg-pink-900/30' %>">
-                  <svg class="w-4 h-4 <%= msg['role'] == 'initiator' ? 'text-indigo-600 dark:text-indigo-400' : 'text-pink-600 dark:text-pink-400' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                </div>
-                <div class="max-w-[80%] rounded-2xl px-4 py-2.5 <%= msg['role'] == 'initiator' ? 'bg-gray-100 dark:bg-gray-700' : 'bg-indigo-50 dark:bg-indigo-900/20' %>">
-                  <p class="text-sm text-gray-900 dark:text-gray-100"><%= msg['content'] %></p>
+              <% is_mine = msg['role'] == 'initiator' && @match.initiator_agent.user == current_user ||
+                           msg['role'] != 'initiator' && @match.initiator_agent.user != current_user %>
+              <div class="flex <%= is_mine ? 'justify-end' : 'justify-start' %>">
+                <div class="max-w-[85%] sm:max-w-[75%]">
+                  <div class="rounded-2xl px-4 py-2.5 shadow-sm <%= is_mine ? 'rounded-br-md bg-indigo-500 dark:bg-indigo-600' : 'rounded-bl-md bg-pink-500 dark:bg-pink-600' %>">
+                    <p class="text-sm text-white leading-relaxed"><%= msg['content'] %></p>
+                  </div>
                 </div>
               </div>
             <% end %>
