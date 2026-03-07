@@ -139,6 +139,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_28_072831) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "compatibility_summary"
+    t.jsonb "compatibility_breakdown", default: {}
     t.index ["initiator_agent_id"], name: "index_matches_on_initiator_agent_id"
     t.index ["receiver_agent_id"], name: "index_matches_on_receiver_agent_id"
   end

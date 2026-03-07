@@ -1,6 +1,8 @@
 class UserPreference < ApplicationRecord
   belongs_to :user
 
+  before_validation :normalize_preferred_gender
+
   validates :user_id, uniqueness: true
   validates :min_age, numericality: { greater_than_or_equal_to: 18 }, allow_nil: true
   validates :max_age, numericality: { greater_than_or_equal_to: 18 }, allow_nil: true
@@ -100,5 +102,9 @@ class UserPreference < ApplicationRecord
         end
       end
     end
+  end
+
+  def normalize_preferred_gender
+    self.preferred_gender = preferred_gender.downcase.strip if preferred_gender.present?
   end
 end

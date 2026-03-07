@@ -3,7 +3,16 @@ class MatchesController < ApplicationController
 
   def index
     @matches = current_user_matches
-      .order(updated_at: :desc)
+      .order(Arel.sql(<<~SQL), updated_at: :desc)
+        CASE status
+          WHEN 'confirmed'     THEN 1
+          WHEN 'date_proposed' THEN 2
+          WHEN 'evaluating'    THEN 3
+          WHEN 'screening'     THEN 4
+          WHEN 'declined'      THEN 5
+          ELSE 6
+        END
+      SQL
     @matches = @matches.where(status: params[:status]) if params[:status].present?
   end
 
@@ -26,6 +35,6 @@ class MatchesController < ApplicationController
     Match.where(
       "initiator_agent_id = ? OR receiver_agent_id = ?",
       current_user.agent.id, current_user.agent.id
-    ).includes(initiator_agent: :user, receiver_agent: :user)
+    ).includes(initiator_agent: { user: { photo_attachment: :blob } }, receiver_agent: { user: { photo_attachment: :blob } })
   end
 end
