@@ -105,6 +105,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_05_115856) do
     t.datetime "updated_at", null: false
     t.text "compatibility_summary"
     t.bigint "selected_venue_id"
+    t.jsonb "compatibility_breakdown", default: {}
     t.index ["initiator_agent_id"], name: "index_matches_on_initiator_agent_id"
     t.index ["receiver_agent_id"], name: "index_matches_on_receiver_agent_id"
     t.index ["selected_venue_id"], name: "index_matches_on_selected_venue_id"

@@ -16,6 +16,46 @@ class Match < ApplicationRecord
     define_method(:"#{s}?") { status == s }
   end
 
+  # ── Compatibility Breakdown Accessors ─────────────────────────────
+
+  def breakdown
+    (compatibility_breakdown || {}).with_indifferent_access
+  end
+
+  def has_breakdown?
+    compatibility_breakdown.present? && compatibility_breakdown.keys.any?
+  end
+
+  def personality_breakdown
+    breakdown[:personality] || {}
+  end
+
+  def relationship_goal_breakdown
+    breakdown[:relationship_goal] || {}
+  end
+
+  def lifestyle_breakdown
+    breakdown[:lifestyle] || {}
+  end
+
+  def schedule_breakdown
+    breakdown[:schedule] || {}
+  end
+
+  def shared_interests_breakdown
+    breakdown[:shared_interests] || {}
+  end
+
+  def unique_insights
+    Array(breakdown[:unique_insights])
+  end
+
+  def dealbreaker_list
+    Array(breakdown[:dealbreakers])
+  end
+
+  # ── User Accessors ────────────────────────────────────────────────
+
   def initiator_user
     initiator_agent.user
   end

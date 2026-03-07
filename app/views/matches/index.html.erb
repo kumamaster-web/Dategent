@@ -8,7 +8,7 @@
     <%= link_to matches_path, class: "inline-flex items-center px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors #{ params[:status].blank? ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700' }" do %>
       All
     <% end %>
-    <% %w[screening evaluating date_proposed confirmed declined].each do |status| %>
+    <% %w[evaluating date_proposed confirmed declined].each do |status| %>
       <%= link_to matches_path(status: status), class: "inline-flex items-center px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors #{ params[:status] == status ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700' }" do %>
         <%= status.titleize %>
       <% end %>
@@ -23,9 +23,15 @@
         <%= link_to match_path(match), class: "block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-5 hover:shadow-md transition-shadow" do %>
           <div class="flex items-start gap-4">
             <%# Avatar %>
-            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center flex-shrink-0 shadow-sm">
-              <span class="text-lg font-bold text-white"><%= other_user.first_name[0] %></span>
-            </div>
+            <% if other_user.photo.attached? && other_user.photo.blob&.persisted? %>
+              <div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
+                <%= image_tag other_user.photo, class: "w-full h-full object-cover" %>
+              </div>
+            <% else %>
+              <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-400 to-pink-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <span class="text-lg font-bold text-white"><%= other_user.first_name[0] %></span>
+              </div>
+            <% end %>
 
             <%# Details %>
             <div class="flex-1 min-w-0">

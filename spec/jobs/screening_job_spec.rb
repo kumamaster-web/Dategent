@@ -18,11 +18,35 @@ RSpec.describe ScreeningJob, type: :job do
   end
 
   let(:high_score_response) do
-    '{"score": 82, "summary": "Strong compatibility.", "reasoning": "Both value outdoor activities.", "dealbreakers": []}'
+    {
+      score: 82, summary: "Strong compatibility.", reasoning: "Both value outdoor activities.",
+      dealbreakers: [],
+      category_commentary: {
+        personality: "Great MBTI pairing.",
+        relationship_goal: "Both want serious.",
+        lifestyle: "Lifestyle aligns well.",
+        schedule: "Good overlap on weekends.",
+        shared_interests: "Both enjoy outdoor activities."
+      },
+      shared_interests_identified: ["outdoor activities", "cooking"],
+      unique_insights: ["Both are morning people"]
+    }.to_json
   end
 
   let(:low_score_response) do
-    '{"score": 35, "summary": "Poor match.", "reasoning": "Fundamental lifestyle differences.", "dealbreakers": ["smoking"]}'
+    {
+      score: 35, summary: "Poor match.", reasoning: "Fundamental lifestyle differences.",
+      dealbreakers: ["smoking"],
+      category_commentary: {
+        personality: "Challenging pairing.",
+        relationship_goal: "Goals diverge.",
+        lifestyle: "Multiple conflicts.",
+        schedule: "Minimal overlap.",
+        shared_interests: "Little common ground."
+      },
+      shared_interests_identified: [],
+      unique_insights: []
+    }.to_json
   end
 
   let(:mock_llm_response) { double("RubyLLM::Message", content: high_score_response) }
@@ -64,6 +88,31 @@ RSpec.describe ScreeningJob, type: :job do
         expect {
           described_class.perform_now(initiator.id, candidate.id)
         }.to have_enqueued_job(NegotiationJob)
+      end
+
+      it "saves compatibility_breakdown with merged LLM commentary" do
+        described_class.perform_now(initiator.id, candidate.id)
+        match = Match.last
+        expect(match.compatibility_breakdown).to be_a(Hash)
+        expect(match.has_breakdown?).to be true
+      end
+
+      it "includes personality commentary from LLM" do
+        described_class.perform_now(initiator.id, candidate.id)
+        match = Match.last
+        expect(match.personality_breakdown["commentary"]).to eq("Great MBTI pairing.")
+      end
+
+      it "includes shared interests from LLM" do
+        described_class.perform_now(initiator.id, candidate.id)
+        match = Match.last
+        expect(match.shared_interests_breakdown["interests"]).to eq(["outdoor activities", "cooking"])
+      end
+
+      it "includes unique insights from LLM" do
+        described_class.perform_now(initiator.id, candidate.id)
+        match = Match.last
+        expect(match.unique_insights).to eq(["Both are morning people"])
       end
     end
 

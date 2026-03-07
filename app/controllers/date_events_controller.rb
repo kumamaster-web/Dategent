@@ -6,6 +6,7 @@ class DateEventsController < ApplicationController
 
   def accept
     if @date_event.update(booking_status: "accepted")
+      @date_event.match.update!(status: "confirmed")
       redirect_to match_path(@date_event.match), notice: "Date accepted! It's a date! 🎉"
     else
       redirect_to match_path(@date_event.match), alert: "Could not accept this date."
@@ -15,6 +16,7 @@ class DateEventsController < ApplicationController
   def decline
     reason = params[:decline_reason]
     if @date_event.update(booking_status: "declined")
+      @date_event.match.update!(status: "declined")
       redirect_to match_path(@date_event.match), notice: "Date declined."
     else
       redirect_to match_path(@date_event.match), alert: "Could not decline this date."
