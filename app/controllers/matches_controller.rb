@@ -13,7 +13,11 @@ class MatchesController < ApplicationController
           ELSE 6
         END
       SQL
-    @matches = @matches.where(status: params[:status]) if params[:status].present?
+    if params[:status].present?
+      @matches = @matches.where(status: params[:status])
+    else
+      @matches = @matches.where.not(status: "screening")
+    end
   end
 
   def show

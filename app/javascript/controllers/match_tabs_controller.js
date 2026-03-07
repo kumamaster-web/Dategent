@@ -76,11 +76,8 @@ export default class extends Controller {
       card.classList.toggle("hidden", i !== this.currentIndex)
     })
 
-    // Active = #9333ea (purple-600), Inactive = #e9d5ff (purple-200)
-    // Dark mode: Active = #c084fc (purple-400), Inactive = #3b0764 (purple-900)
-    const isDark = document.documentElement.classList.contains("dark")
-    const activeColor = isDark ? "#c084fc" : "#9333ea"
-    const inactiveColor = isDark ? "#3b0764" : "#e9d5ff"
+    const activeColor = "#9333ea"
+    const inactiveColor = "#e9d5ff"
 
     visibleDots.forEach((dot, i) => {
       dot.style.backgroundColor = (i === this.currentIndex) ? activeColor : inactiveColor
