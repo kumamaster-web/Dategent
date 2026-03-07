@@ -201,8 +201,8 @@
 
                       <div class="px-4 py-4 space-y-3 max-h-96 overflow-y-auto">
                         <% transcript.content.split("\n").reject(&:blank?).each do |line| %>
-                          <% if line.match?(/\A\s*\[(.+?)\s*→\s*(.+?)\]:?\s*(.+)\z/) %>
-                            <% match_data = line.match(/\A\s*\[(.+?)\s*→\s*(.+?)\]:?\s*(.+)\z/) %>
+                          <% if line.match?(/\A\s*\[(.+?)(?:\s*→\s*(.+?))?\]:?\s*(.+)\z/) %>
+                            <% match_data = line.match(/\A\s*\[(.+?)(?:\s*→\s*(.+?))?\]:?\s*(.+)\z/) %>
                             <% speaker = match_data[1].strip %>
                             <% message = match_data[3].strip %>
                             <% is_mine = my_agent&.name && speaker.include?(my_agent.name.split("'s").first) %>
