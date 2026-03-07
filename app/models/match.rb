@@ -1,9 +1,11 @@
 class Match < ApplicationRecord
   belongs_to :initiator_agent, class_name: "Agent"
   belongs_to :receiver_agent, class_name: "Agent"
+  belongs_to :selected_venue, class_name: "Venue"
 
   has_many :date_events, dependent: :destroy
   has_many :match_transcripts, dependent: :destroy
+  has_many :matches_venues, dependent: :destroy
 
   STATUSES = %w[screening evaluating date_proposed confirmed declined].freeze
 

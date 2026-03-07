@@ -61,56 +61,129 @@
     </div>
   </div>
 
+  <%# <%= @match.initiator_agent.user.id %>
+  <%# <%= @match.receiver_agent.user.id %>
+  <%# <%= @match.initiator_agent.user.password %>
+  <%# <%= @match.initiator_agent.user.email %>
+  <%# <%= current_user.id %>
+  <%# if @match.intitiator is the current_user agent then show @recommended_venues%>
   <%# Date Events %>
-  <% if @date_events.any? %>
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
-      <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Date Proposals</h2>
-      </div>
-      <div class="divide-y divide-gray-200 dark:divide-gray-700">
-        <% @date_events.each do |date_event| %>
-          <div class="px-6 py-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
-                  <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </div>
-                <div>
-                  <p class="text-sm font-medium text-gray-900 dark:text-gray-100"><%= date_event.venue&.name || "Venue TBD" %></p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">
-                    <% if date_event.scheduled_time %>
-                      <%= date_event.scheduled_time.strftime("%A, %B %d at %I:%M %p") %>
-                    <% else %>
-                      Time TBD
-                    <% end %>
-                    <% if date_event.venue&.address %>
-                      &middot; <%= date_event.venue.address %>
-                    <% end %>
-                  </p>
-                </div>
-              </div>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= booking_status_badge(date_event.booking_status) %>">
-                <%= date_event.booking_status&.titleize %>
-              </span>
-            </div>
 
-            <% if date_event.booking_status == "proposed" %>
-              <div class="mt-3 flex gap-2">
-                <%= link_to accept_date_event_path(date_event), method: :patch, data: { turbo_method: :patch }, class: "inline-flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors" do %>
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                  Accept Date
-                <% end %>
-                <%= link_to decline_date_event_path(date_event), method: :patch, data: { turbo_method: :patch }, class: "inline-flex items-center gap-1.5 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-red-600 dark:text-red-400 text-sm font-medium py-2 px-4 rounded-lg border border-gray-300 dark:border-gray-600 transition-colors" do %>
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                  Decline
-                <% end %>
+  <%= @date_event.booking_status %>
+  <% if @match.initiator_agent.user == current_user %>
+
+    <% if @date_event.booking_status == "initiated" %>
+      <% @recommended_venues.each do |item| %>
+        <%= button_to item.name,
+            match_path(@match),
+            method: :patch,
+            params: { match: { selected_venue_id: item.id} }%><br>
+                    <!-- match_path tells button where to send request ()
+                    resource :matches. PATCH /matches/id
+                    -->
+      <% end %>
+    <% elsif @date_event.booking_status == "proposed" %>
+      <p>Selected venue:<%= @match.selected_venue.name  %></p>
+      <p>Waiting for receiver response.</p>
+
+      <% elsif  @date_event.booking_status == "accepted" %>
+        <p>Selected venue: <%= @match.selected_venue.name %></p>
+        <p>Date accepted!</p>
+      <% elsif @date_event.booking_status == "declined" %>
+        <p>Selected venue: <%= @match.selected_venue.name %></p>
+        <p>Date declined.</p>
+    <% end %>
+
+  <% else %>
+      <% if @date_event.booking_status == "proposed" %>
+        <p>Selected venue: <%= @match.selected_venue.name %></p>
+
+        <%= button_to "Accept", accept_date_event_path(@date_event), method: :patch %>
+        <%= button_to "Decline", decline_date_event_path(@date_event), method: :patch %>
+
+      <% elsif @date_event.booking_status == "accepted" %>
+        <p>Selected venue: <%= @match.selected_venue.name %></p>
+        <p>Date accepted!</p>
+
+      <% elsif @date_event.booking_status == "declined" %>
+        <p>Selected venue: <%= @match.selected_venue.name %></p>
+        <p>Date declined.</p>
+      <% end %>
+
+
+
+
+
+
+
+
+    <%# <p>Selected venue: <%= @match.selected_venue.name %>
+
+  <!--
+  - when the selected venue is sent to the receiver(done)
+  - a booking status is proposed.
+    - update booking status of date event
+  - while it is proposed the reciever should see the venue with an accept or decline button.
+    -if booking status is proposed, user should see an accept or decline button.
+    -add accept and decline.
+  - after clicking a button, the booking status will be changes.
+    -if user clicks accept
+      -Change the booking status to accepted in the DateEventsController (call accept or create new one?)
+    -if user clicks decline
+      -Change the booking status to declined in the DateEventsController (call decline or create new one?)
+  - depending on the status you will get one of three visuals:proposed, accepted, or declined -->
+
+
+    <!-- <% if @date_events.any? %>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Date Proposals</h2>
+        </div>
+        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+          <% @date_events.each do |date_event| %>
+            <div class="px-6 py-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100"><%= date_event.venue&.name || "Venue TBD" %></p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                      <% if date_event.scheduled_time %>
+                        <%= date_event.scheduled_time.strftime("%A, %B %d at %I:%M %p") %>
+                      <% else %>
+                        Time TBD
+                      <% end %>
+                      <% if date_event.venue&.address %>
+                        &middot; <%= date_event.venue.address %>
+                      <% end %>
+                    </p>
+                  </div>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= booking_status_badge(date_event.booking_status) %>">
+                  <%= date_event.booking_status&.titleize %>
+                </span>
               </div>
-            <% end %>
-          </div>
-        <% end %>
+
+              <% if date_event.booking_status == "proposed" %>
+                <div class="mt-3 flex gap-2">
+                  <%= link_to accept_date_event_path(date_event), method: :patch, data: { turbo_method: :patch }, class: "inline-flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors" do %>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Accept Date
+                  <% end %>
+                  <%= link_to decline_date_event_path(date_event), method: :patch, data: { turbo_method: :patch }, class: "inline-flex items-center gap-1.5 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-red-600 dark:text-red-400 text-sm font-medium py-2 px-4 rounded-lg border border-gray-300 dark:border-gray-600 transition-colors" do %>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Decline
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
       </div>
-    </div>
-  <% end %>
+    <% end %>
+  <% end %> -->
 
   <%# Agent-to-Agent Transcript Timeline %>
   <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">

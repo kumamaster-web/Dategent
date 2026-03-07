@@ -11,8 +11,6 @@ class MatchesvenuesController < ApplicationController
     @user1_max_dist = @match.initiator_agent.user.user_preference.max_distance
     @user2_max_dist = @match.receiver_agent.user.user_preference.max_distance
 
-
-
     @venue_prompt = "
       You are a Venue analyzer.
 
